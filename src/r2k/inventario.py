@@ -1,16 +1,18 @@
 from dataclasses import dataclass
 
+CANTIDAD_MINIMA_VENTA = 1
+
 
 class StockInsuficienteError(Exception):
-    pass
+    """La cantidad vendida supera el stock disponible."""
 
 
 class CantidadInvalidaError(Exception):
-    pass
+    """La cantidad vendida es menor que CANTIDAD_MINIMA_VENTA."""
 
 
 class ProductoNoEncontradoError(Exception):
-    pass
+    """El id_producto no está en el inventario."""
 
 
 @dataclass
@@ -22,15 +24,31 @@ class Producto:
     stock_actual: int
 
 
-def registrar_salida(productos, id_producto, cantidad):
-    if id_producto not in productos:
-        raise ProductoNoEncontradoError(f"No existe el producto {id_producto}")
-    if cantidad <= 0:
-        raise CantidadInvalidaError(f"Cantidad inválida: {cantidad}")
-    p = productos[id_producto]
-    if cantidad > p.stock_actual:
-        raise StockInsuficienteError(
-            f"{p.nombre}: stock {p.stock_actual}, se pidieron {cantidad}"
+def _buscar_producto(productos: dict[int, Producto], id_producto: int) -> Producto:
+    try:
+        return productos[id_producto]
+    except KeyError:
+        raise ProductoNoEncontradoError(f"No existe el producto {id_producto}") from None
+
+
+def _validar_cantidad(producto: Producto, cantidad: int) -> None:
+    if cantidad < CANTIDAD_MINIMA_VENTA:
+        raise CantidadInvalidaError(
+            f"La cantidad debe ser al menos {CANTIDAD_MINIMA_VENTA} (recibido: {cantidad})"
         )
-    p.stock_actual = p.stock_actual - cantidad
-    return p.stock_actual
+    if cantidad > producto.stock_actual:
+        raise StockInsuficienteError(
+            f"{producto.nombre}: hay {producto.stock_actual} en stock "
+            f"y se intentaron vender {cantidad}"
+        )
+
+
+def registrar_salida(productos: dict[int, Producto], id_producto: int, cantidad: int) -> int:
+    """Descuenta `cantidad` del stock del producto y devuelve el nuevo stock_actual.
+
+    Si algo falla, lanza el error correspondiente y el stock NO cambia.
+    """
+    producto = _buscar_producto(productos, id_producto)
+    _validar_cantidad(producto, cantidad)
+    producto.stock_actual -= cantidad
+    return producto.stock_actual
