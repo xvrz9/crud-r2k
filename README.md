@@ -1,9 +1,142 @@
 # CRUD R2K
 
-Sistema para que R2K, una microempresa de accesorios para motos en Neiva, deje de llevar el inventario y
-las cuentas en un cuaderno. Proyecto final del Seminario de IA Aplicada al Ciclo de Vida del Software (FET).
+Proyecto final del Seminario de IA Aplicada al Ciclo de Vida del Software (FET).
 
-Autor: Sergio Alejandro Vargas Trujillo
+## 1. Qué es
+
+Sistema para que R2K, una microempresa de accesorios para motos en Neiva, deje de llevar el inventario y
+las cuentas en un cuaderno. El objetivo es controlar qué mercancía entra y qué se vende.
+
+El primer incremento es la lógica de inventario de la **HU-02: registrar la venta de un producto y
+descontar el stock**. Es una función de dominio pura (`registrar_salida`), sin base de datos ni interfaz
+web todavía. El contrato completo está en la sección [Funcionalidad de la semana 5](#funcionalidad-de-la-semana-5).
+
+## 2. Requisitos
+
+- Python 3.10 o superior (probado con 3.10 y 3.13).
+- `pip` y `git`.
+- El código de `src/` solo usa la biblioteca estándar. Las dependencias de `requirements.txt` son
+  herramientas de desarrollo, con versión fija: `pytest` (pruebas), `ruff` (linter) y `pip-audit`
+  (auditoría de dependencias).
+
+## 3. Instalación
+
+Windows (PowerShell):
+
+```powershell
+git clone https://github.com/xvrz9/crud-r2k.git
+cd crud-r2k
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Linux o macOS:
+
+```bash
+git clone https://github.com/xvrz9/crud-r2k.git
+cd crud-r2k
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+El proyecto no necesita variables de entorno todavía. Cuando las necesite, se copia `.env.example` como
+`.env` (que está en `.gitignore`) y se llenan ahí los valores.
+
+## 4. Ejecución
+
+Todavía no hay interfaz. Hay una demostración por consola que registra una venta normal y una rechazada.
+
+Windows (PowerShell):
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m r2k
+```
+
+Linux o macOS:
+
+```bash
+PYTHONPATH=src python -m r2k
+```
+
+Salida esperada:
+
+```
+Venta de 3 x Casco integral -> stock: 7
+Venta de 8 x Guantes de moto rechazada -> Guantes de moto: hay 5 en stock y se intentaron vender 8
+Stock de Guantes de moto: 5
+```
+
+Para usar la función desde otro código:
+
+```python
+from r2k.inventario import Producto, registrar_salida
+
+productos = {1: Producto(1, "Casco integral", 120000, 180000, 10)}
+registrar_salida(productos, 1, 3)  # devuelve 7
+```
+
+## 5. Pruebas
+
+Un comando para cada cosa, desde la raíz del repositorio:
+
+```bash
+pytest -v                         # todas las pruebas
+ruff check .                      # linter con reglas E, F, B y S (configurado en pyproject.toml)
+pip-audit -r requirements.txt     # vulnerabilidades conocidas en las dependencias
+```
+
+- `tests/test_inventario.py`: las 9 pruebas de la semana 5 (normales, de límite y de error).
+- `tests/test_abuso.py`: pruebas de abuso de la semana 6 (cantidades que no son enteros, productos con
+  datos imposibles, stock intacto después de cada error).
+- `tests/test_demo.py`: comprueba la demostración por consola.
+
+`pyproject.toml` agrega `src` al path de pytest, por eso no hay que instalar el paquete.
+
+## 6. Estructura
+
+```
+crud-r2k/
+├── README.md                 # este archivo
+├── bitacora_ia.md            # registro del uso de IA (semanas 5 y 6)
+├── revision_seguridad.md     # informe de revisión de código y seguridad (semana 6)
+├── pyproject.toml            # configuración de pytest y de ruff
+├── requirements.txt          # herramientas de desarrollo con versión fija
+├── .env.example              # plantilla de variables de entorno (hoy no se usa ninguna)
+├── .gitignore
+├── src/r2k/
+│   ├── __init__.py
+│   ├── __main__.py           # demostración: python -m r2k
+│   └── inventario.py         # Producto, errores de dominio y registrar_salida
+└── tests/
+    ├── test_inventario.py
+    ├── test_abuso.py
+    └── test_demo.py
+```
+
+## 7. Uso de IA
+
+Este proyecto se desarrolla con ayuda de asistentes de IA y eso se declara:
+
+- **Asistente:** Claude (Claude Code), como agente de código y como revisor.
+- **Semana 5:** propuso el contrato, las pruebas y el refactor de `registrar_salida`.
+- **Semana 6:** un agente pasó el linter, hizo la segunda revisión del código, corrigió los hallazgos y
+  redactó los borradores de los docstrings, de este README y del informe. Trabajó en la rama
+  `agente/revision-s6`, con un commit por corrección.
+- **Reglas:** ninguna prueba se modifica para que pase, cada hallazgo de la IA se verifica ejecutando el
+  código antes de aceptarlo, y no se suben claves ni datos reales del negocio.
+- Cada sugerencia, con la decisión y la verificación, está en [bitacora_ia.md](bitacora_ia.md). Los
+  hallazgos de la revisión están en [revision_seguridad.md](revision_seguridad.md).
+
+## 8. Autor y licencia
+
+- **Autor:** Sergio Alejandro Vargas Trujillo, Fundación Escuela Tecnológica de Neiva (FET).
+- **Licencia:** proyecto académico. Todavía no se ha elegido una licencia abierta, así que todos los
+  derechos quedan reservados por el autor.
+
+---
 
 ## Funcionalidad de la semana 5
 
@@ -49,10 +182,13 @@ Escenario 3 (error): Stock insuficiente
   - Solo se vende en unidades enteras.
   - El stock nunca queda negativo y no hay ventas a crédito (pregunta P-05 abierta).
 - **Casos límite:** vender exactamente todo el stock deja 0; la cantidad mínima es 1; vender stock + 1 falla.
-- **Errores** (en todos el stock **no cambia**):
+- **Errores** (en todos el stock **no cambia**; todos heredan de `ErrorInventario`):
   - `ProductoNoEncontradoError`: el `id_producto` no existe.
-  - `CantidadInvalidaError`: la cantidad es menor que 1.
+  - `CantidadInvalidaError`: la cantidad es menor que 1 o no es un entero (semana 6: `2.5`, `True`,
+    `"3"` y `None` también se rechazan).
   - `StockInsuficienteError`: la cantidad es mayor que `stock_actual`.
+- **Semana 6:** `Producto` lanza `ProductoInvalidoError` al crearse si un precio o el stock no es un
+  entero mayor o igual a 0.
 
 ### Ejemplos
 
@@ -64,25 +200,4 @@ Escenario 3 (error): Stock insuficiente
 | 4 | 5 | 2 (Guantes de moto) | 8 | `StockInsuficienteError`, el stock sigue en 5 |
 | 5 | 10 | 1 (Casco integral) | 0 | `CantidadInvalidaError` |
 | 6 | — | 99 (no existe) | 1 | `ProductoNoEncontradoError` |
-
-### Cómo ejecutar las pruebas
-
-```bash
-pip install -r requirements.txt
-pytest -v
-```
-
-Un solo comando corre todas las pruebas. `pytest.ini` agrega `src` al path.
-
-### Estructura
-
-```
-crud-r2k/
-├── README.md
-├── bitacora_ia.md
-├── .gitignore
-├── pytest.ini
-├── requirements.txt
-├── src/r2k/inventario.py
-└── tests/test_inventario.py
-```
+| 7 | 10 | 1 (Casco integral) | 2.5 | `CantidadInvalidaError`, el stock sigue en 10 |
