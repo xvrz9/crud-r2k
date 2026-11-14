@@ -28,13 +28,16 @@ def _buscar_producto(productos: dict[int, Producto], id_producto: int) -> Produc
     try:
         return productos[id_producto]
     except KeyError:
-        raise ProductoNoEncontradoError(f"No existe el producto {id_producto}") from None
+        raise ProductoNoEncontradoError(
+            f"No existe el producto {id_producto}"
+        ) from None
 
 
 def _validar_cantidad(producto: Producto, cantidad: int) -> None:
     if cantidad < CANTIDAD_MINIMA_VENTA:
         raise CantidadInvalidaError(
-            f"La cantidad debe ser al menos {CANTIDAD_MINIMA_VENTA} (recibido: {cantidad})"
+            f"La cantidad debe ser al menos {CANTIDAD_MINIMA_VENTA} "
+            f"(recibido: {cantidad})"
         )
     if cantidad > producto.stock_actual:
         raise StockInsuficienteError(
@@ -43,7 +46,9 @@ def _validar_cantidad(producto: Producto, cantidad: int) -> None:
         )
 
 
-def registrar_salida(productos: dict[int, Producto], id_producto: int, cantidad: int) -> int:
+def registrar_salida(
+    productos: dict[int, Producto], id_producto: int, cantidad: int
+) -> int:
     """Descuenta `cantidad` del stock del producto y devuelve el nuevo stock_actual.
 
     Si algo falla, lanza el error correspondiente y el stock NO cambia.
