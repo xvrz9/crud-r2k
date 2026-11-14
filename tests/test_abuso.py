@@ -10,6 +10,8 @@ from r2k.inventario import (
     CantidadInvalidaError,
     Producto,
     ProductoInvalidoError,
+    ProductoNoEncontradoError,
+    StockInsuficienteError,
     registrar_salida,
 )
 
@@ -73,3 +75,16 @@ def test_producto_con_datos_invalidos_no_se_puede_crear(
 def test_producto_con_stock_cero_y_precios_cero_es_valido():
     producto = Producto(3, "Calcomanía de regalo", 0, 0, 0)
     assert producto.stock_actual == 0
+
+
+# --- H-03: en todos los errores el stock queda intacto ---
+def test_vender_una_unidad_de_mas_no_cambia_el_stock(productos):
+    with pytest.raises(StockInsuficienteError):
+        registrar_salida(productos, 1, STOCK_INICIAL + 1)
+    assert productos[1].stock_actual == STOCK_INICIAL
+
+
+def test_producto_inexistente_no_cambia_el_stock_de_los_demas(productos):
+    with pytest.raises(ProductoNoEncontradoError):
+        registrar_salida(productos, 99, 1)
+    assert productos[1].stock_actual == STOCK_INICIAL
