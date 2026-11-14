@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 CANTIDAD_MINIMA_VENTA = 1
+CAMPOS_ENTEROS_NO_NEGATIVOS = ("precio_compra", "precio_venta", "stock_actual")
 
 
 class StockInsuficienteError(Exception):
@@ -15,6 +16,14 @@ class ProductoNoEncontradoError(Exception):
     """El id_producto no está en el inventario."""
 
 
+class ProductoInvalidoError(ValueError):
+    """Un precio o el stock del producto no es un entero mayor o igual a 0."""
+
+
+def _es_entero(valor: object) -> bool:
+    return isinstance(valor, int) and not isinstance(valor, bool)
+
+
 @dataclass
 class Producto:
     id_producto: int
@@ -22,6 +31,15 @@ class Producto:
     precio_compra: int  # pesos colombianos, entero (nunca float)
     precio_venta: int
     stock_actual: int
+
+    def __post_init__(self) -> None:
+        for campo in CAMPOS_ENTEROS_NO_NEGATIVOS:
+            valor = getattr(self, campo)
+            if not _es_entero(valor) or valor < 0:
+                raise ProductoInvalidoError(
+                    f"{campo} debe ser un entero mayor o igual a 0 "
+                    f"(recibido: {valor!r})"
+                )
 
 
 def _buscar_producto(productos: dict[int, Producto], id_producto: int) -> Producto:
@@ -31,10 +49,6 @@ def _buscar_producto(productos: dict[int, Producto], id_producto: int) -> Produc
         raise ProductoNoEncontradoError(
             f"No existe el producto {id_producto}"
         ) from None
-
-
-def _es_entero(valor: object) -> bool:
-    return isinstance(valor, int) and not isinstance(valor, bool)
 
 
 def _validar_cantidad(producto: Producto, cantidad: int) -> None:

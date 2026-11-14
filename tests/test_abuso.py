@@ -6,7 +6,12 @@ semana 5 (test_inventario.py) no se modificaron.
 
 import pytest
 
-from r2k.inventario import CantidadInvalidaError, Producto, registrar_salida
+from r2k.inventario import (
+    CantidadInvalidaError,
+    Producto,
+    ProductoInvalidoError,
+    registrar_salida,
+)
 
 STOCK_INICIAL = 10
 
@@ -34,3 +39,37 @@ def test_el_stock_sigue_siendo_entero_despues_de_un_intento_con_decimal(producto
     with pytest.raises(CantidadInvalidaError):
         registrar_salida(productos, 1, 0.5)
     assert type(productos[1].stock_actual) is int
+
+
+# --- H-02: un Producto no puede nacer con datos imposibles ---
+@pytest.mark.parametrize(
+    ("precio_compra", "precio_venta", "stock_actual"),
+    [
+        (120000, 180000, -1),
+        (-120000, 180000, 10),
+        (120000, -180000, 10),
+        (120000, 180000.5, 10),
+        (120000, 180000, 2.5),
+        (120000, 180000, "10"),
+        (120000, 180000, True),
+    ],
+    ids=[
+        "stock_negativo",
+        "compra_negativa",
+        "venta_negativa",
+        "precio_decimal",
+        "stock_decimal",
+        "stock_texto",
+        "stock_bool",
+    ],
+)
+def test_producto_con_datos_invalidos_no_se_puede_crear(
+    precio_compra, precio_venta, stock_actual
+):
+    with pytest.raises(ProductoInvalidoError):
+        Producto(1, "Casco integral", precio_compra, precio_venta, stock_actual)
+
+
+def test_producto_con_stock_cero_y_precios_cero_es_valido():
+    producto = Producto(3, "Calcomanía de regalo", 0, 0, 0)
+    assert producto.stock_actual == 0
