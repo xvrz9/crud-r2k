@@ -8,7 +8,7 @@ class StockInsuficienteError(Exception):
 
 
 class CantidadInvalidaError(Exception):
-    """La cantidad vendida es menor que CANTIDAD_MINIMA_VENTA."""
+    """La cantidad no es un entero o es menor que CANTIDAD_MINIMA_VENTA."""
 
 
 class ProductoNoEncontradoError(Exception):
@@ -33,7 +33,15 @@ def _buscar_producto(productos: dict[int, Producto], id_producto: int) -> Produc
         ) from None
 
 
+def _es_entero(valor: object) -> bool:
+    return isinstance(valor, int) and not isinstance(valor, bool)
+
+
 def _validar_cantidad(producto: Producto, cantidad: int) -> None:
+    if not _es_entero(cantidad):
+        raise CantidadInvalidaError(
+            f"La cantidad debe ser un número entero (recibido: {cantidad!r})"
+        )
     if cantidad < CANTIDAD_MINIMA_VENTA:
         raise CantidadInvalidaError(
             f"La cantidad debe ser al menos {CANTIDAD_MINIMA_VENTA} "
