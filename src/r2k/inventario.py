@@ -1,4 +1,5 @@
-"""Reglas de inventario de CRUD R2K: productos y salida de mercancía por venta.
+"""Reglas de inventario de CRUD R2K: productos, salida y entrada de mercancía,
+ganancia de las ventas y estado del stock.
 
 Es lógica de dominio pura: no usa base de datos, red ni archivos. El inventario
 se recibe como un diccionario de id_producto a Producto.
@@ -168,3 +169,90 @@ def registrar_salida(
     _validar_stock_suficiente(producto, cantidad)
     producto.stock_actual -= cantidad
     return producto.stock_actual
+
+
+def registrar_entrada(
+    productos: dict[int, Producto], id_producto: int, cantidad: int
+) -> int:
+    """Registra la mercancía que llega y la suma al stock del producto.
+
+    Igual que en registrar_salida, primero valida y al final suma. Si lanza
+    cualquier error, el stock no cambia.
+
+    Recibe:
+        productos: inventario, diccionario de id_producto a Producto.
+        id_producto: id del producto que entra.
+        cantidad: unidades que entran; entero mayor o igual a 1.
+
+    Devuelve:
+        El nuevo `stock_actual` del producto.
+
+    Efecto:
+        Modifica `stock_actual` del producto dentro del diccionario recibido.
+
+    Lanza:
+        ProductoNoEncontradoError: si `id_producto` no está en el inventario.
+        CantidadInvalidaError: si `cantidad` no es un entero o es menor que 1.
+    """
+    producto = _buscar_producto(productos, id_producto)
+    _validar_cantidad(cantidad)
+    producto.stock_actual += cantidad
+    return producto.stock_actual
+
+
+def calcular_ganancia(
+    ventas: list[tuple[int, int]], productos: dict[int, Producto]
+) -> int:
+    """Calcula la ganancia de una lista de ventas, en pesos enteros.
+
+    Ganancia = suma de (precio_venta - precio_compra) * cantidad por cada venta.
+    No modifica el stock: solo calcula.
+
+    Recibe:
+        ventas: lista de tuplas (id_producto, cantidad). Puede estar vacía.
+        productos: inventario, diccionario de id_producto a Producto.
+
+    Devuelve:
+        La ganancia total como entero. 0 si la lista está vacía. Puede ser
+        negativa si algún producto se vende por debajo de lo que costó.
+
+    Lanza:
+        ProductoNoEncontradoError: si algún id_producto no está en el inventario.
+        CantidadInvalidaError: si alguna cantidad no es un entero o es menor que 1.
+    """
+    ganancia = 0
+    for id_producto, cantidad in ventas:
+        producto = _buscar_producto(productos, id_producto)
+        _validar_cantidad(cantidad)
+        ganancia += (producto.precio_venta - producto.precio_compra) * cantidad
+    return ganancia
+
+
+def estado_stock(stock_actual: int, minimo: int) -> str:
+    """Clasifica el stock de un producto como "agotado", "bajo" u "ok".
+
+    El mínimo es un parámetro porque el umbral real de stock bajo todavía no
+    está definido por el cliente (pregunta P-01).
+
+    Recibe:
+        stock_actual: unidades disponibles.
+        minimo: desde cuántas unidades o menos el stock se considera bajo.
+
+    Devuelve:
+        "agotado" si stock_actual es 0 (tiene prioridad aunque minimo sea 0),
+        "bajo" si 0 < stock_actual <= minimo,
+        "ok" si stock_actual > minimo.
+
+    Lanza:
+        ValueError: si stock_actual o minimo es negativo.
+    """
+    if stock_actual < 0 or minimo < 0:
+        raise ValueError(
+            f"El stock y el mínimo no pueden ser negativos "
+            f"(stock: {stock_actual}, mínimo: {minimo})"
+        )
+    if stock_actual == 0:
+        return "agotado"
+    if stock_actual <= minimo:
+        return "bajo"
+    return "ok"
