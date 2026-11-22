@@ -59,3 +59,24 @@ historial de Git hubo que revisarlo aparte. También propuso tocar pruebas exist
 no se puede hacer. Lo que más me sirvió fue escribir primero la prueba de abuso, verla fallar y después
 corregir: así cada hallazgo queda demostrado y no solo copiado. El agente trabajó en su propia rama, y
 revisar el diff por commits pequeños fue más fácil que revisar un solo cambio grande.
+
+---
+
+# Semana 7: suite de pruebas con técnicas formales
+
+Asistente: Claude (Claude Code en VS Code). Registro completo: [registro_pruebas.md](registro_pruebas.md).
+
+| # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
+|---|---|---|---|---|---|---|
+| 13 | 2026-11-22 | **Diseño de casos.** Le di al asistente las reglas de `registrar_salida`, `registrar_entrada`, `calcular_ganancia` y `estado_stock`, y le pedí particiones válidas e inválidas, valores límite y una tabla de decisión para `estado_stock`. Propuso los casos y tres ambigüedades: si calcular la ganancia cambia el stock, qué pasa al vender a pérdida y si se aceptan cantidades no enteras en la entrada. | Aceptada | Decidí que la ganancia no cambia el stock, que la pérdida se registra como ganancia negativa (si el negocio pierde, se tiene que saber) y que la entrada rechaza cantidades no enteras, igual que la venta. La tabla de decisión quedó en 4 reglas. | Cada esperado lo revisé contra la regla escrita, no contra el código. Tablas en la sección 1 del registro. | 7b3f920 |
+| 14 | 2026-11-22 | **Generación de pruebas.** Prompt: generar `tests/test_reglas.py` desde las tablas, con `parametrize`, `pytest.raises` con el error exacto y esperados fijos. La primera versión dio `44 passed`. | Ajustada | Revisé cada prueba con tres preguntas: si el esperado sale de la regla, si fallaría al romper el código y si es redundante. Descarté 6 grupos redundantes o débiles (`isinstance`, esperado calculado con la misma fórmula, casos repetidos de la semana 5), corregí 3 y agregué casos de pérdida y de cantidad no entera. Quité los comentarios del código y dejé `ids` que dicen qué caso es. | Versión final: `pytest -v` 64 passed. Rompí el código 4 veces y en cada una fallaron pruebas: (a) 1 failed, (b) 7 failed, (c) 4 failed, (d) 3 failed. | 891ea90 |
+| 15 | 2026-11-22 | **Datos sintéticos.** El asistente generó la fixture `catalogo` con productos de motos inventados: "Guantes Ñandú", "Casco D'Angelo", "Impermeable Tía Rosa", nombre vacío, precio 0, stock 0 y margen 0. | Ajustada | Agregué un producto con margen negativo por la decisión de registrar pérdidas. Descarté la prueba de nombres difíciles en la entrada porque esa función no usa el nombre; los nombres se prueban en el mensaje de error. | `test_mensaje_de_stock_insuficiente_conserva_la_enie` pasa. Revisé que no hay datos de personas reales; el modelo no tiene teléfonos. | 891ea90 |
+
+## Reflexión de la semana 7
+
+La primera versión de las pruebas pasaba completa, pero eso no quería decir que fuera buena. Varias se
+repetían con las de la semana 5, otras usaban `isinstance` y pasaban con cualquier valor, y una calculaba
+el esperado con la misma fórmula del código. Romper el código a propósito fue lo que más me sirvió: mostró
+que cada cambio hace fallar al menos una prueba y que la prueba corregida de la entrada sí detecta sumar
+antes de validar. También aprendí a revisar que el error de verdad quedara aplicado antes de leer el
+resultado: en un intento la suite dio verde porque el cambio no se había hecho.
