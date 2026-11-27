@@ -28,6 +28,8 @@ la app) y el navegador en `http://localhost:5000`.
 
 - La primera vez se crea sola la base de datos `r2k.db` en la carpeta del proyecto.
 - La app solo escucha en el mismo portátil (`127.0.0.1`): nadie más en la red puede entrar.
+- En la ventana negra sale un aviso en inglés que dice "development server". Es normal: ese servidor
+  sirve para una sola persona en su propio equipo, que es este caso.
 - Para cerrarla, se cierra la ventana negra.
 
 ## 4. Comprobar que quedó bien
