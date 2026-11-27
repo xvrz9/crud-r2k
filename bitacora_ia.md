@@ -81,3 +81,45 @@ Que todas las pruebas pasen no quiere decir que estén bien. La primera versión
 y otras que pasaban con cualquier valor. Lo que más me sirvió fue romper el código a propósito, porque
 ahí se ve si una prueba sirve o no. También aprendí que hay que comparar las pruebas con los requisitos
 y no solo con el código: tenía pruebas muy completas de una ganancia que el cliente nunca pidió.
+
+---
+
+# Entrega final: app web, despliegue y operación (semanas 8 a 10)
+
+Asistente: Claude (Claude Code). Esta vez lo usé para ordenar los documentos y para escribir el código
+de la app más rápido. Yo decidía qué se hacía, probaba la app en mi portátil como la usaría mi primo y
+le pedía cambios cuando algo no me servía. Rama: `entrega-final`.
+
+| # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
+|---|---|---|---|---|---|---|
+| 18 | 2026-11-27 | Le pedí ordenar los documentos de cada semana en `docs/` y redactar una guía de despliegue y un plan de operación cortos. | Ajustada | Los PDF de la semana 1 que había puesto no eran los que yo entregué. Le pasé mis dos archivos originales y le dije que no les cambiara nada. | Abrí cada documento desde la tabla del README. | ef35864, efd51b0, 7290f7d |
+| 19 | 2026-11-27 | Le pedí primero las pruebas de la app con los dos escenarios de cada historia del documento de requisitos, y después la app con Flask y SQLite. | Aceptada | Así cada historia queda comprobada con los mismos datos y mensajes del documento. | Las pruebas fallaron antes de que existiera la app. Después: `83 passed`. La instalé con `instalar.bat` y la abrí con `iniciar.bat` en mi portátil. | dd7b858, a357b4d |
+| 20 | 2026-11-27 | La app tenía una pestaña aparte, «Mercancía», solo para sumar unidades. | Ajustada | Probándola vi que no hacía falta una pantalla solo para eso. Le pedí que se pudiera agregar unidades desde Productos. | Agregué unidades a un producto desde su botón y revisé que el stock subiera. | 8d08656 |
+| 21 | 2026-11-27 | Al crear un producto, la app pedía precio de compra, y al agregar unidades pedía el costo. | Rechazada | Esos datos solo servían para calcular la ganancia, que ya no está en el alcance. Cuando se quitó la ganancia no se quitaron, y no lo vimos hasta que probé la app. Los quité y lo expliqué en el README, porque los documentos S3 y S4 ya estaban entregados. | `pytest`: 84 passed. Volví a crear productos y solo pedía nombre, precio de venta y cantidad. | 969c9b1 |
+| 22 | 2026-11-27 | El primer diseño era muy básico: colores fuertes, el «Volver» suelto abajo y el reporte era solo una tabla con un número. | Ajustada | Le pedí colores sobrios, sin emojis, botones con estilo y un reporte con gráficas y el detalle de cada venta. | Revisé cada pantalla en el navegador con datos de ejemplo. `85 passed`. | f4fdb47 |
+| 23 | 2026-11-27 | Antes de subir, le pedí revisar que nada del código contradijera los documentos de requisitos y diseño. | Aceptada | Encontró dos mensajes de error que no decían exactamente lo mismo que el documento (HU-03 y HU-05/HU-08). | Las pruebas ahora comparan el mensaje palabra por palabra. `85 passed`. | 04f3a20 |
+| 24 | 2026-11-27 | Le pedí quitar los comentarios del código, simplificarlo y darme aparte una explicación de cada línea para estudiarla. | Aceptada | Quería un código limpio que yo pudiera explicar, no uno lleno de comentarios. | `85 passed`, `ruff check .` sin avisos, y probé otra vez vender, corregir y eliminar. | 921e0f2 |
+| 25 | 2026-11-27 | El pipeline de GitHub Actions salió en verde pero con dos advertencias de que una versión de Node.js iba a dejar de funcionar. | Aceptada | Vi las advertencias en la pestaña Actions y le pregunté qué eran. Se subieron las dos acciones a la versión nueva. | La siguiente ejecución del pipeline. | ff9b5c3, c0c4cff |
+
+## Resumen de la entrega final
+
+| Decisión | Entradas |
+|---|---|
+| Aceptadas | 19, 23, 24, 25 |
+| Aceptadas con cambios (ajustadas) | 18, 20, 22 |
+| Rechazadas | 21 |
+
+## Errores que atraparon las pruebas (entrega final)
+
+- Antes de escribir la app, las pruebas de `tests/test_app.py` fallaban todas: así sé que de verdad prueban algo.
+- Al quitar el precio de compra, las pruebas mostraron todo lo que había que cambiar para que la app siguiera haciendo lo mismo.
+- Al cambiar los mensajes, las pruebas de HU-03, HU-05 y HU-08 confirmaron que dicen lo mismo que el documento.
+
+## Reflexión de la entrega final
+
+Lo que más me sirvió fue usar la app yo mismo antes de darla por terminada. Las pruebas pasaban, pero
+fue al usarla que vi que pedía un precio de compra que no servía para nada y que había una pestaña de
+más. La IA escribe rápido, pero no sabe cómo trabaja mi primo; eso lo tuve que decidir yo. También
+aprendí que cuando se cambia el alcance hay que revisar todo lo que dependía de lo que se quitó, no
+solo la función principal. Y pedir la explicación aparte me obligó a entender cada línea antes de
+sustentarla.
