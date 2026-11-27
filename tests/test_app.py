@@ -297,6 +297,15 @@ def test_hu10_mes_sin_ventas(cliente):
     assert "$0" in pagina
 
 
+def test_hu10_pantalla_muestra_el_detalle_de_cada_venta(cliente):
+    espejo = crear(cliente, "Espejo retrovisor", 25000, 8)
+    vender(cliente, espejo, 2, fecha="2026-11-30")
+    pagina = cliente.get("/reporte?mes=2026-11").get_data(as_text=True)
+    assert "2026-11-30" in pagina
+    assert "Espejo retrovisor" in pagina
+    assert "$50.000" in pagina
+
+
 def test_hu10_mes_invalido(cliente):
     assert reporte(cliente, "2026-13").status_code == 400
 

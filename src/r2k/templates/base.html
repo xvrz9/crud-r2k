@@ -8,12 +8,14 @@
 </head>
 <body>
   <header>
-    <h1>R2K</h1>
-    <nav>
-      <a href="/" class="{{ 'activo' if request.path == '/' }}">Productos</a>
-      <a href="/ventas" class="{{ 'activo' if request.path == '/ventas' }}">Ventas</a>
-      <a href="/reporte" class="{{ 'activo' if request.path == '/reporte' }}">Reporte del mes</a>
-    </nav>
+    <div class="encabezado">
+      <div class="marca">R2K <span>Inventario y ventas</span></div>
+      <nav>
+        <a href="/" class="{{ 'activo' if request.path == '/' or request.path.startswith('/editar') }}">Productos</a>
+        <a href="/ventas" class="{{ 'activo' if request.path == '/ventas' }}">Ventas</a>
+        <a href="/reporte" class="{{ 'activo' if request.path == '/reporte' }}">Reporte del mes</a>
+      </nav>
+    </div>
   </header>
   <main>
     <p id="mensaje" class="mensaje" hidden></p>

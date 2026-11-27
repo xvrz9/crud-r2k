@@ -4,6 +4,7 @@ Las reglas del negocio están en inventario.py; aquí solo se cargan los
 productos, se llaman esas reglas y se guarda el resultado.
 """
 
+import calendar
 import sqlite3
 from datetime import date
 from pathlib import Path
@@ -277,3 +278,23 @@ def reporte_mensual(con, mes):
         "JOIN producto p USING (id_producto) ORDER BY v.fecha, d.id_detalle"
     ).fetchall()
     return inv.reporte_mensual([tuple(fila) for fila in filas], mes)
+
+
+def ventas_del_mes(con, mes):
+    """Cada producto vendido en el mes con su fecha y valor (detalle del reporte)."""
+    return con.execute(
+        "SELECT v.id_venta, v.fecha, p.nombre, d.cantidad, d.precio_unitario, "
+        "d.subtotal FROM venta v JOIN detalle_venta d USING (id_venta) "
+        "JOIN producto p USING (id_producto) WHERE v.fecha LIKE ? "
+        "ORDER BY v.fecha, v.id_venta, d.id_detalle",
+        (f"{mes}-%",),
+    ).fetchall()
+
+
+def ventas_por_dia(detalle, mes):
+    """Total vendido cada día del mes. La posición 0 es el día 1."""
+    anio, numero = (int(parte) for parte in mes.split("-"))
+    dias = [0] * calendar.monthrange(anio, numero)[1]
+    for fila in detalle:
+        dias[int(fila["fecha"][8:10]) - 1] += fila["subtotal"]
+    return dias

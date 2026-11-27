@@ -1,25 +1,88 @@
 {% extends "base.html" %}
 {% block contenido %}
-<h2>Reporte de ventas del mes</h2>
-<form method="get" action="/reporte" class="fila">
-  <input type="month" name="mes" value="{{ reporte.mes }}">
-  <button>Ver</button>
-</form>
+<div class="titulo-pagina">
+  <div>
+    <h1>Reporte de ventas</h1>
+    <p class="subtitulo">{{ nombre_mes|capitalize }}</p>
+  </div>
+  <form method="get" action="/reporte" class="fila">
+    <input type="month" name="mes" value="{{ reporte.mes }}">
+    <button>Ver mes</button>
+  </form>
+</div>
+
+<div class="cifras">
+  <div class="cifra">
+    <div class="etiqueta">Total vendido</div>
+    <div class="valor">{{ reporte.total_vendido|pesos }}</div>
+  </div>
+  <div class="cifra">
+    <div class="etiqueta">Unidades vendidas</div>
+    <div class="valor">{{ unidades }}</div>
+  </div>
+  <div class="cifra">
+    <div class="etiqueta">Ventas registradas</div>
+    <div class="valor">{{ num_ventas }}</div>
+  </div>
+</div>
 
 {% if reporte.productos %}
-<table>
-  <tr><th>Producto</th><th>Cantidad vendida</th><th>Valor</th></tr>
-  {% for fila in reporte.productos %}
-  <tr>
-    <td>{{ fila.nombre }}</td>
-    <td>{{ fila.cantidad }}</td>
-    <td>{{ fila.valor|pesos }}</td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<p>No hay ventas en este mes</p>
-{% endif %}
+{% set productos = reporte.productos|sort(attribute="valor", reverse=true) %}
+{% set mayor = productos[0].valor or 1 %}
+<section class="tarjeta">
+  <h2>Cuánto se vendió de cada producto</h2>
+  <div class="barras">
+    {% for fila in productos %}
+    <div>{{ fila.nombre }}</div>
+    <div class="pista" title="{{ fila.nombre }}: {{ fila.cantidad }} unidades, {{ fila.valor|pesos }}">
+      <div class="barra" style="width: {{ (fila.valor / mayor * 100)|round(1) }}%"></div>
+    </div>
+    <div class="valor">{{ fila.valor|pesos }} <span class="detalle">· {{ fila.cantidad }} und.</span></div>
+    {% endfor %}
+  </div>
+</section>
 
-<p class="total">Total vendido: {{ reporte.total_vendido|pesos }}</p>
+{% set mejor_dia = dias|max or 1 %}
+<section class="tarjeta">
+  <h2>Ventas por día</h2>
+  <div class="columnas-dia">
+    {% for valor in dias %}
+    <div class="dia" title="Día {{ loop.index }}: {{ valor|pesos }}">
+      {% if valor %}<div class="columna" style="height: {{ (valor / mejor_dia * 100)|round(1) }}%"></div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="dias-eje">
+    {% for valor in dias %}<span>{{ loop.index }}</span>{% endfor %}
+  </div>
+</section>
+
+<section class="tarjeta">
+  <h2>Detalle de las ventas</h2>
+  <table>
+    <thead>
+      <tr><th>Fecha</th><th>Venta</th><th>Producto</th><th class="num">Cantidad</th><th class="num">Precio</th><th class="num">Valor</th></tr>
+    </thead>
+    <tbody>
+      {% for fila in detalle %}
+      <tr>
+        <td class="fecha">{{ fila.fecha }}</td>
+        <td>#{{ fila.id_venta }}</td>
+        <td>{{ fila.nombre }}</td>
+        <td class="num">{{ fila.cantidad }}</td>
+        <td class="num">{{ fila.precio_unitario|pesos }}</td>
+        <td class="num">{{ fila.subtotal|pesos }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="5">Total del mes</td><td class="num">{{ reporte.total_vendido|pesos }}</td></tr>
+    </tfoot>
+  </table>
+</section>
+{% else %}
+<section class="tarjeta">
+  <p class="vacio">No hay ventas en este mes</p>
+</section>
+{% endif %}
 {% endblock %}

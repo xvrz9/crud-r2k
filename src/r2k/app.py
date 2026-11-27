@@ -16,6 +16,11 @@ from r2k import inventario as inv
 
 PUERTO = 5000
 
+MESES = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+    "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+]
+
 # Qué código HTTP devuelve cada error del inventario (Diseño S4, sección 6)
 CODIGOS = {
     inv.ProductoInvalidoError: 400,
@@ -91,7 +96,17 @@ def crear_app(ruta_db=datos.RUTA_DB):
             resultado = datos.reporte_mensual(con(), mes)
         except ValueError as error:
             return render_template("base.html", error=str(error)), 400
-        return render_template("reporte.html", reporte=resultado)
+        detalle = datos.ventas_del_mes(con(), mes)
+        anio, numero = mes.split("-")
+        return render_template(
+            "reporte.html",
+            reporte=resultado,
+            detalle=detalle,
+            dias=datos.ventas_por_dia(detalle, mes),
+            nombre_mes=f"{MESES[int(numero) - 1]} de {anio}",
+            unidades=sum(fila["cantidad"] for fila in detalle),
+            num_ventas=len({fila["id_venta"] for fila in detalle}),
+        )
 
     # Rutas JSON (Diseño S4, sección 6)
 

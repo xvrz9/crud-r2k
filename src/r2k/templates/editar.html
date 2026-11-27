@@ -1,37 +1,48 @@
 {% extends "base.html" %}
 {% block contenido %}
-<h2>{{ producto.nombre }}</h2>
-<p>Quedan <strong>{{ producto.stock_actual }}</strong> unidades.</p>
+<div class="titulo-pagina">
+  <div>
+    <h1>{{ producto.nombre }}</h1>
+    <p class="subtitulo">Quedan {{ producto.stock_actual }} unidades · {{ producto.precio_venta|pesos }} cada una</p>
+  </div>
+  <a class="boton secundario" href="/">← Volver a productos</a>
+</div>
 
-<h2 id="agregar">Agregar unidades (llegó mercancía)</h2>
-<form data-metodo="POST" data-url="/entradas" data-ok="Unidades agregadas" class="formulario">
-  <input type="hidden" name="id_producto" data-numero value="{{ producto.id_producto }}">
-  <label>Cantidad que llegó <input name="cantidad" data-numero required></label>
-  <button>Agregar unidades</button>
-</form>
+<div class="columnas iguales">
+  <section class="tarjeta" id="agregar">
+    <h2>Agregar unidades</h2>
+    <form data-metodo="POST" data-url="/entradas" data-ok="Unidades agregadas" class="formulario">
+      <input type="hidden" name="id_producto" data-numero value="{{ producto.id_producto }}">
+      <label>Cantidad que llegó <input name="cantidad" data-numero required></label>
+      <button>Agregar unidades</button>
+    </form>
+  </section>
 
-{% if entradas %}
-<h3>Últimas veces que llegó</h3>
-<table>
-  <tr><th>Fecha</th><th>Cantidad</th></tr>
-  {% for e in entradas %}
-  <tr>
-    <td>{{ e.fecha }}</td>
-    <td>{{ e.cantidad }}</td>
-  </tr>
-  {% endfor %}
-</table>
-{% endif %}
+  <section class="tarjeta">
+    <h2>Editar nombre y precio</h2>
+    <form data-metodo="PUT" data-url="/productos/{{ producto.id_producto }}"
+          data-ok="Producto actualizado" data-volver="/" class="formulario">
+      <label>Nombre <input name="nombre" value="{{ producto.nombre }}" required></label>
+      <label>Precio de venta
+        <input name="precio_venta" data-numero value="{{ producto.precio_venta }}" required>
+      </label>
+      <button>Guardar cambios</button>
+    </form>
+    <p class="subtitulo">Las ventas anteriores conservan el precio que tenían.</p>
+  </section>
+</div>
 
-<h2>Editar nombre y precio</h2>
-<p>Las ventas anteriores conservan su precio.</p>
-<form data-metodo="PUT" data-url="/productos/{{ producto.id_producto }}"
-      data-ok="Producto actualizado" data-volver="/" class="formulario">
-  <label>Nombre <input name="nombre" value="{{ producto.nombre }}" required></label>
-  <label>Precio de venta
-    <input name="precio_venta" data-numero value="{{ producto.precio_venta }}" required>
-  </label>
-  <button>Guardar cambios</button>
-  <a href="/">Volver a productos</a>
-</form>
+<section class="tarjeta">
+  <h2>Últimas veces que llegó mercancía</h2>
+  {% if entradas %}
+  <table>
+    <tr><th>Fecha</th><th class="num">Cantidad</th></tr>
+    {% for e in entradas %}
+    <tr><td>{{ e.fecha }}</td><td class="num">{{ e.cantidad }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="vacio">Todavía no se han agregado unidades de este producto.</p>
+  {% endif %}
+</section>
 {% endblock %}
