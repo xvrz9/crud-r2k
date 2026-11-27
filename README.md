@@ -127,19 +127,17 @@ crud-r2k/
 
 ## 7. Uso de IA
 
-Este proyecto se desarrolla con ayuda de asistentes de IA y eso se declara:
+Usé Claude como ayuda en el proyecto. En [bitacora_ia.md](bitacora_ia.md) anoté lo que le pedí, qué
+acepté, qué no y por qué.
 
-- **Asistente:** Claude (Claude Code), como agente de código y como revisor.
-- **Semana 5:** propuso el contrato, las pruebas y el refactor de `registrar_salida`.
-- **Semana 6:** un agente pasó el linter, hizo la segunda revisión del código, corrigió los hallazgos y
-  redactó los borradores de los docstrings, de este README y del informe. Trabajó en la rama
-  `agente/revision-s6`, con un commit por corrección.
-- **Semana 7:** propuso los casos de prueba y escribió una primera versión de `test_reglas.py`, que
-  revisé contra cada regla; lo que descarté o corregí está en [registro_pruebas.md](registro_pruebas.md).
-- **Reglas:** ninguna prueba se modifica para que pase, cada hallazgo de la IA se verifica ejecutando el
-  código antes de aceptarlo, y no se suben claves ni datos reales del negocio.
-- Cada sugerencia, con la decisión y la verificación, está en [bitacora_ia.md](bitacora_ia.md). Los
-  hallazgos de la revisión están en [revision_seguridad.md](revision_seguridad.md).
+- **Semana 5:** me ayudó a pensar los casos de prueba de la venta y a ordenar mejor el código.
+- **Semana 6:** le pedí que revisara el código buscando errores y problemas de seguridad. Lo que
+  encontró lo probé antes de corregirlo. Los cambios se hicieron en una rama aparte
+  (`agente/revision-s6`) y los revisé antes de pasarlos a la principal. También me ayudó a redactar
+  la documentación.
+- **Semana 7:** me sugirió casos de prueba. Los revisé uno por uno y quité o arreglé los que no
+  servían.
+- No cambié pruebas para que pasaran, no acepté nada sin probarlo y no subí datos reales del negocio.
 
 ## 8. Autor y licencia
 

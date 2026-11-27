@@ -25,7 +25,8 @@ y haría que el asistente me explicara cada cambio antes de aplicarlo.
 
 # Semana 6: revisión de código y seguridad
 
-Asistente: Claude (Claude Code), como revisor y como agente de código en la rama `agente/revision-s6`.
+Asistente: Claude (Claude Code). Lo usé como segundo revisor del código y para aplicar las correcciones
+en la rama `agente/revision-s6`.
 Commit revisado: `104eada`. Informe completo: [revision_seguridad.md](revision_seguridad.md).
 
 | # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
@@ -35,7 +36,7 @@ Commit revisado: `104eada`. Informe completo: [revision_seguridad.md](revision_s
 | 9 | 2026-11-14 | La IA sugirió agregar el `assert` de «el stock no cambia» dentro de dos pruebas de la semana 5. | Rechazada | La regla es no modificar pruebas existentes. Se escribieron dos pruebas nuevas en `tests/test_abuso.py` que comprueban lo mismo. | `git diff 104eada..HEAD -- tests/test_inventario.py` no muestra nada. `pytest -q`: 27 passed en ese commit. | ae651b9 |
 | 10 | 2026-11-14 | La IA sugirió fijar la versión de pytest y moverla a un `requirements-dev.txt`. | Ajustada | Se fijó la versión, pero se dejó un solo archivo: todas las dependencias son de desarrollo y `src/` solo usa la biblioteca estándar. | `pip-audit -r requirements.txt`: `No known vulnerabilities found`. Instalación probada en una carpeta limpia. | bb3b61d |
 | 11 | 2026-11-14 | La IA marcó como sospecha que `Producto` aceptaba stock y precios negativos o decimales. | Aceptada | Se comprobó que `Producto(1, "X", -5, 1.5, -3)` se creaba sin error, contra los supuestos del contrato. | 8 pruebas nuevas; fallaban antes (error de importación de `ProductoInvalidoError`) y pasan después: `25 passed`. | ad1ffd8 |
-| 12 | 2026-11-14 | **Trabajo del agente.** Instrucción: ejecutar los pasos de la tarea de la semana 6 sobre el repositorio, en la rama `agente/revision-s6`, con un commit por corrección, sin modificar las pruebas existentes y sin reescribir el historial. | Aceptada con revisión del diff | El agente no trabajó sobre `main`. Cada commit hace una sola cosa y su mensaje dice qué se corrigió. | `git diff --stat 104eada..agente/revision-s6`: 12 archivos, ninguno es `tests/test_inventario.py`. `pytest -v`: 28 passed. `ruff check .`: All checks passed. Luego se integró a `main` con `git merge --no-ff`. | rama `agente/revision-s6` |
+| 12 | 2026-11-14 | **Aplicar las correcciones.** Con la tabla de hallazgos ya decidida, le pedí aplicar las correcciones en la rama `agente/revision-s6`, un commit por cada una, sin modificar las pruebas existentes y sin reescribir el historial. | Aceptada con revisión del diff | Trabajar en otra rama me dejó revisar cada cambio antes de pasarlo a `main`. Cada commit hace una sola cosa. | `git diff --stat 104eada..agente/revision-s6`: 12 archivos, ninguno es `tests/test_inventario.py`. `pytest -v`: 28 passed. `ruff check .`: All checks passed. Luego se integró a `main` con `git merge --no-ff`. | rama `agente/revision-s6` |
 
 ## Resumen de la semana 6
 
@@ -57,7 +58,7 @@ prompt pedía separar los problemas seguros de las sospechas y citar la línea. 
 herramientas: los avisos de estilo los encontró ruff, las dependencias las revisó pip-audit y el
 historial de Git hubo que revisarlo aparte. También propuso tocar pruebas existentes, que es justo lo que
 no se puede hacer. Lo que más me sirvió fue escribir primero la prueba de abuso, verla fallar y después
-corregir: así cada hallazgo queda demostrado y no solo copiado. El agente trabajó en su propia rama, y
+corregir: así cada hallazgo queda demostrado y no solo copiado. Aplicar las correcciones en otra rama y
 revisar el diff por commits pequeños fue más fácil que revisar un solo cambio grande.
 
 ---
