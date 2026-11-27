@@ -1,9 +1,3 @@
-"""Guarda y lee los datos de R2K en SQLite (un solo archivo, r2k.db).
-
-Las reglas del negocio están en inventario.py; aquí solo se cargan los
-productos, se llaman esas reglas y se guarda el resultado.
-"""
-
 import calendar
 import sqlite3
 from datetime import date
@@ -11,7 +5,6 @@ from pathlib import Path
 
 from r2k import inventario as inv
 
-# r2k.db queda en la carpeta principal del proyecto (dos niveles arriba de src/r2k)
 RUTA_DB = Path(__file__).resolve().parents[2] / "r2k.db"
 
 ESQUEMA = """
@@ -65,19 +58,17 @@ def _validar_fecha(fecha):
         ) from None
 
 
-def _unidades(cantidad):
-    return "1 unidad" if cantidad == 1 else f"{cantidad} unidades"
+def _sin_stock(hay):
+    unidades = "1 unidad" if hay == 1 else f"{hay} unidades"
+    return inv.StockInsuficienteError(f"Stock insuficiente: solo hay {unidades}")
 
 
 def _cargar(con, id_producto):
-    """Devuelve un diccionario {id: Producto} con ese producto, o vacío si no existe."""
     fila = con.execute(
         "SELECT * FROM producto WHERE id_producto = ?", (id_producto,)
     ).fetchone()
     if fila is None:
         return {}
-    # La app no maneja precio de compra (no calcula ganancia). La clase Producto
-    # de la semana 5 todavía lo tiene, por eso se le pasa 0.
     producto = inv.Producto(
         fila["id_producto"],
         fila["nombre"],
@@ -96,11 +87,13 @@ def _guardar_stock(con, producto):
     )
 
 
-# Productos (HU-01 a HU-04)
+def obtener_producto(con, id_producto):
+    return con.execute(
+        "SELECT * FROM producto WHERE id_producto = ? AND activo = 1", (id_producto,)
+    ).fetchone()
 
 
 def listar_productos(con, buscar=""):
-    """Productos activos cuyo nombre contiene el texto buscado (HU-02)."""
     return con.execute(
         "SELECT * FROM producto WHERE activo = 1 AND nombre LIKE ? ORDER BY nombre",
         (f"%{buscar.strip()}%",),
@@ -108,8 +101,7 @@ def listar_productos(con, buscar=""):
 
 
 def crear_producto(con, nombre, precio_venta, stock_actual):
-    """Registra un producto nuevo (HU-01). Devuelve su id."""
-    inv.validar_datos_producto(nombre, precio_venta, stock_actual)
+    inv.validar_producto(nombre, precio_venta, stock_actual)
     with con:
         cursor = con.execute(
             "INSERT INTO producto (nombre, precio_venta, stock_actual) "
@@ -120,13 +112,9 @@ def crear_producto(con, nombre, precio_venta, stock_actual):
 
 
 def editar_producto(con, id_producto, nombre, precio_venta):
-    """Cambia el nombre y el precio (HU-03). Las ventas viejas no cambian."""
-    productos = _cargar(con, id_producto)
-    if not productos or not productos[id_producto].activo:
+    if obtener_producto(con, id_producto) is None:
         raise inv.ProductoNoEncontradoError(f"No existe el producto {id_producto}")
-    inv.validar_datos_producto(
-        nombre, precio_venta, mensaje_precio="El precio debe ser mayor que 0"
-    )
+    inv.validar_producto(nombre, precio_venta, mensaje="El precio debe ser mayor que 0")
     with con:
         con.execute(
             "UPDATE producto SET nombre = ?, precio_venta = ? WHERE id_producto = ?",
@@ -135,18 +123,13 @@ def editar_producto(con, id_producto, nombre, precio_venta):
 
 
 def eliminar_producto(con, id_producto):
-    """Elimina un producto agotado (HU-04): queda con activo = 0."""
     productos = _cargar(con, id_producto)
     inv.eliminar_producto(productos, id_producto)
     with con:
         _guardar_stock(con, productos[id_producto])
 
 
-# Entradas de mercancía (HU-05)
-
-
 def registrar_entrada(con, id_producto, cantidad, fecha=None):
-    """Guarda la mercancía que llegó y sube el stock. Devuelve el nuevo stock."""
     fecha = fecha or _hoy()
     _validar_fecha(fecha)
     productos = _cargar(con, id_producto)
@@ -161,22 +144,13 @@ def registrar_entrada(con, id_producto, cantidad, fecha=None):
 
 
 def listar_entradas(con, id_producto, limite=10):
-    """Últimas entradas de mercancía de un producto."""
     return con.execute(
         "SELECT * FROM entrada WHERE id_producto = ? ORDER BY id_entrada DESC LIMIT ?",
         (id_producto, limite),
     ).fetchall()
 
 
-# Ventas (HU-06 y HU-08)
-
-
 def registrar_venta(con, items, fecha=None):
-    """Guarda una venta con sus productos y baja el stock (HU-06).
-
-    items es una lista de {"id_producto": ..., "cantidad": ...}.
-    Devuelve (id_venta, total). Si un producto falla, no se guarda nada.
-    """
     fecha = fecha or _hoy()
     _validar_fecha(fecha)
     if not isinstance(items, list) or not items:
@@ -192,10 +166,7 @@ def registrar_venta(con, items, fecha=None):
         try:
             inv.registrar_salida(productos, id_producto, item.get("cantidad"))
         except inv.StockInsuficienteError:
-            hay = productos[id_producto].stock_actual
-            raise inv.StockInsuficienteError(
-                f"Stock insuficiente: solo hay {_unidades(hay)}"
-            ) from None
+            raise _sin_stock(productos[id_producto].stock_actual) from None
 
     total = sum(
         productos[i["id_producto"]].precio_venta * i["cantidad"] for i in items
@@ -206,17 +177,12 @@ def registrar_venta(con, items, fecha=None):
         ).lastrowid
         for item in items:
             precio = productos[item["id_producto"]].precio_venta
+            cantidad = item["cantidad"]
             con.execute(
                 "INSERT INTO detalle_venta "
                 "(id_venta, id_producto, cantidad, precio_unitario, subtotal) "
                 "VALUES (?, ?, ?, ?, ?)",
-                (
-                    id_venta,
-                    item["id_producto"],
-                    item["cantidad"],
-                    precio,
-                    precio * item["cantidad"],
-                ),
+                (id_venta, item["id_producto"], cantidad, precio, precio * cantidad),
             )
         for producto in productos.values():
             _guardar_stock(con, producto)
@@ -224,7 +190,6 @@ def registrar_venta(con, items, fecha=None):
 
 
 def corregir_detalle(con, id_venta, id_detalle, cantidad_nueva):
-    """Corrige la cantidad de una venta (HU-08). Devuelve el nuevo total."""
     detalle = con.execute(
         "SELECT * FROM detalle_venta WHERE id_detalle = ? AND id_venta = ?",
         (id_detalle, id_venta),
@@ -237,9 +202,7 @@ def corregir_detalle(con, id_venta, id_detalle, cantidad_nueva):
     try:
         inv.corregir_venta(producto, detalle["cantidad"], cantidad_nueva)
     except inv.StockInsuficienteError:
-        raise inv.StockInsuficienteError(
-            f"Stock insuficiente: solo hay {_unidades(producto.stock_actual)} más"
-        ) from None
+        raise _sin_stock(producto.stock_actual) from None
 
     with con:
         con.execute(
@@ -258,7 +221,6 @@ def corregir_detalle(con, id_venta, id_detalle, cantidad_nueva):
 
 
 def listar_ventas(con, limite=30):
-    """Últimas ventas, un renglón por producto vendido."""
     return con.execute(
         "SELECT v.id_venta, v.fecha, v.total, d.id_detalle, d.cantidad, "
         "d.precio_unitario, d.subtotal, p.nombre "
@@ -269,21 +231,7 @@ def listar_ventas(con, limite=30):
     ).fetchall()
 
 
-# Reporte (HU-10)
-
-
-def reporte_mensual(con, mes):
-    """Lo vendido en el mes, incluidos los productos que ya se eliminaron."""
-    filas = con.execute(
-        "SELECT v.fecha, p.nombre, d.cantidad, d.precio_unitario "
-        "FROM venta v JOIN detalle_venta d USING (id_venta) "
-        "JOIN producto p USING (id_producto) ORDER BY v.fecha, d.id_detalle"
-    ).fetchall()
-    return inv.reporte_mensual([tuple(fila) for fila in filas], mes)
-
-
 def ventas_del_mes(con, mes):
-    """Cada producto vendido en el mes con su fecha y valor (detalle del reporte)."""
     return con.execute(
         "SELECT v.id_venta, v.fecha, p.nombre, d.cantidad, d.precio_unitario, "
         "d.subtotal FROM venta v JOIN detalle_venta d USING (id_venta) "
@@ -293,8 +241,15 @@ def ventas_del_mes(con, mes):
     ).fetchall()
 
 
+def reporte_mensual(con, mes):
+    ventas = [
+        (f["fecha"], f["nombre"], f["cantidad"], f["precio_unitario"])
+        for f in ventas_del_mes(con, mes)
+    ]
+    return inv.reporte_mensual(ventas, mes)
+
+
 def ventas_por_dia(detalle, mes):
-    """Total vendido cada día del mes. La posición 0 es el día 1."""
     anio, numero = (int(parte) for parte in mes.split("-"))
     dias = [0] * calendar.monthrange(anio, numero)[1]
     for fila in detalle:

@@ -16,9 +16,6 @@ def stocks(catalogo):
     return {i: p.stock_actual for i, p in catalogo.items()}
 
 
-# registrar_salida
-
-
 def test_vender_producto_agotado_falla(catalogo):
     with pytest.raises(StockInsuficienteError):
         registrar_salida(catalogo, 3, 1)
@@ -33,9 +30,6 @@ def test_mensaje_de_stock_insuficiente_con_enie(catalogo):
 def test_no_se_puede_vender_un_producto_eliminado(catalogo):
     with pytest.raises(ProductoNoEncontradoError):
         registrar_salida(catalogo, 6, 1)
-
-
-# registrar_entrada
 
 
 @pytest.mark.parametrize(
@@ -64,9 +58,6 @@ def test_entrada_invalida_no_cambia_el_stock(catalogo, id_producto, cantidad, er
     assert stocks(catalogo) == antes
 
 
-# eliminar_producto (tabla de decision)
-
-
 def test_eliminar_producto_con_stock_cero(catalogo):
     eliminar_producto(catalogo, 3)
     assert catalogo[3].activo is False
@@ -89,9 +80,6 @@ def test_eliminar_producto_con_una_unidad_falla(catalogo):
 def test_eliminar_producto_que_no_existe_o_ya_se_elimino(catalogo, id_producto):
     with pytest.raises(ProductoNoEncontradoError):
         eliminar_producto(catalogo, id_producto)
-
-
-# reporte_mensual
 
 
 def test_reporte_de_noviembre(ventas):

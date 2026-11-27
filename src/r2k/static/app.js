@@ -1,7 +1,4 @@
-// Envía los formularios a las rutas JSON de la aplicación y muestra el resultado.
-
 function numero(texto) {
-  // "$25.000" -> 25000. Si no es un número se manda tal cual y el servidor lo rechaza.
   const limpio = texto.replace(/[$.\s]/g, "");
   return /^-?\d+$/.test(limpio) ? Number(limpio) : texto;
 }
@@ -52,7 +49,6 @@ async function enviar(form) {
   }
   let texto = form.dataset.ok || "Listo";
   if (json.total !== undefined) texto += ". Total: " + pesos(json.total);
-  // El mensaje se muestra después de recargar la página con los datos nuevos
   sessionStorage.setItem("mensaje", texto);
   location.href = form.dataset.volver || location.pathname;
 }

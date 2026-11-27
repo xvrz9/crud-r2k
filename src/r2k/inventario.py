@@ -1,17 +1,13 @@
-"""Reglas del inventario de R2K: productos, ventas, entradas, borrado y reporte.
-
-No usa base de datos. El inventario es un diccionario de id_producto a Producto.
-"""
-
 import re
 from dataclasses import dataclass
 
 CANTIDAD_MINIMA = 1
 CAMPOS_ENTEROS = ("precio_compra", "precio_venta", "stock_actual")
+PRECIO_INVALIDO = "El precio de venta debe ser mayor que 0"
 
 
 class ErrorInventario(Exception):
-    """Error base del inventario."""
+    pass
 
 
 class StockInsuficienteError(ErrorInventario):
@@ -39,14 +35,11 @@ class VentaNoEncontradaError(ErrorInventario):
 
 
 def _es_entero(valor):
-    # bool es subclase de int en Python, por eso se descarta aparte
     return isinstance(valor, int) and not isinstance(valor, bool)
 
 
 @dataclass
 class Producto:
-    """Producto del inventario. Precios en pesos enteros."""
-
     id_producto: int
     nombre: str
     precio_compra: int
@@ -88,27 +81,16 @@ def _validar_stock_suficiente(producto, cantidad):
         )
 
 
-def validar_datos_producto(
-    nombre, precio_venta, stock_actual=0,
-    mensaje_precio="El precio de venta debe ser mayor que 0",
-):
-    """Revisa los datos antes de guardar un producto (HU-01 y HU-03).
-
-    Los mensajes son los de los escenarios del documento de requisitos.
-    """
+def validar_producto(nombre, precio_venta, stock_actual=0, mensaje=PRECIO_INVALIDO):
     if not isinstance(nombre, str) or not nombre.strip():
         raise ProductoInvalidoError("El nombre no puede estar vacío")
     if not _es_entero(precio_venta) or precio_venta <= 0:
-        raise ProductoInvalidoError(mensaje_precio)
+        raise ProductoInvalidoError(mensaje)
     if not _es_entero(stock_actual) or stock_actual < 0:
         raise ProductoInvalidoError("La cantidad no puede ser negativa")
 
 
 def registrar_salida(productos, id_producto, cantidad):
-    """Registra una venta y descuenta el stock (HU-06). Devuelve el nuevo stock.
-
-    Si hay un error el stock no cambia.
-    """
     producto = _buscar_producto(productos, id_producto)
     _validar_cantidad(cantidad)
     _validar_stock_suficiente(producto, cantidad)
@@ -117,7 +99,6 @@ def registrar_salida(productos, id_producto, cantidad):
 
 
 def registrar_entrada(productos, id_producto, cantidad):
-    """Suma al stock la mercancía que llega (HU-05). Devuelve el nuevo stock."""
     producto = _buscar_producto(productos, id_producto)
     _validar_cantidad(cantidad)
     producto.stock_actual += cantidad
@@ -125,10 +106,6 @@ def registrar_entrada(productos, id_producto, cantidad):
 
 
 def corregir_venta(producto, cantidad_anterior, cantidad_nueva):
-    """Cambia la cantidad de una venta ya registrada (HU-08). Devuelve el nuevo stock.
-
-    Si ahora se vendió menos, el stock sube; si se vendió más, baja.
-    """
     _validar_cantidad(cantidad_nueva)
     _validar_stock_suficiente(producto, cantidad_nueva - cantidad_anterior)
     producto.stock_actual -= cantidad_nueva - cantidad_anterior
@@ -136,10 +113,6 @@ def corregir_venta(producto, cantidad_anterior, cantidad_nueva):
 
 
 def eliminar_producto(productos, id_producto):
-    """Marca el producto como inactivo (HU-04). Solo se puede si el stock es 0.
-
-    No se borra del diccionario para que sus ventas sigan en los reportes.
-    """
     producto = _buscar_producto(productos, id_producto)
     if producto.stock_actual > 0:
         raise ProductoConStockError(
@@ -150,11 +123,6 @@ def eliminar_producto(productos, id_producto):
 
 
 def reporte_mensual(ventas, mes):
-    """Resume lo vendido en un mes (HU-10).
-
-    ventas es una lista de (fecha "AAAA-MM-DD", nombre, cantidad, precio_unitario)
-    y mes va como "AAAA-MM".
-    """
     if not isinstance(mes, str) or not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes):
         raise ValueError(f"El mes debe tener la forma AAAA-MM (recibido: {mes!r})")
 

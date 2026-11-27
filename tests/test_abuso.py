@@ -17,7 +17,6 @@ def productos():
     return {1: Producto(1, "Casco integral", 120000, 180000, STOCK_INICIAL)}
 
 
-# --- H-01: la cantidad debe ser un entero de verdad ---
 @pytest.mark.parametrize(
     "cantidad",
     [2.5, float("nan"), float("inf"), True, "3", None, [1]],
@@ -37,7 +36,6 @@ def test_el_stock_sigue_siendo_entero_despues_de_un_intento_con_decimal(producto
     assert type(productos[1].stock_actual) is int
 
 
-# --- H-02: un Producto no puede nacer con datos imposibles ---
 @pytest.mark.parametrize(
     ("precio_compra", "precio_venta", "stock_actual"),
     [
@@ -71,7 +69,6 @@ def test_producto_con_stock_cero_y_precios_cero_es_valido():
     assert producto.stock_actual == 0
 
 
-# --- H-03: en todos los errores el stock queda intacto ---
 def test_vender_una_unidad_de_mas_no_cambia_el_stock(productos):
     with pytest.raises(StockInsuficienteError):
         registrar_salida(productos, 1, STOCK_INICIAL + 1)

@@ -43,9 +43,6 @@ def reporte(cliente, mes):
     return cliente.get(f"/reportes/mensual?mes={mes}")
 
 
-# HU-01 crear producto
-
-
 def test_hu01_producto_registrado_aparece_en_la_lista(cliente):
     crear(cliente, "Sticker reflectivo para casco", 8000, 20)
     producto = lista(cliente)[0]
@@ -85,9 +82,6 @@ def test_hu01_datos_invalidos_no_se_guardan(cliente, nombre, venta, cantidad):
     assert lista(cliente) == []
 
 
-# HU-02 buscar producto
-
-
 def test_hu02_busqueda_muestra_solo_los_que_coinciden(cliente):
     crear(cliente, "Espejo retrovisor", 25000, 8)
     crear(cliente, "Casco integral", 180000, 10)
@@ -103,9 +97,6 @@ def test_hu02_busqueda_sin_resultados(cliente):
     assert lista(cliente, "xyz123") == []
     pagina = cliente.get("/?buscar=xyz123").get_data(as_text=True)
     assert "No se encontraron productos" in pagina
-
-
-# HU-03 editar producto
 
 
 def test_hu03_precio_nuevo_no_cambia_las_ventas_anteriores(cliente):
@@ -142,9 +133,6 @@ def test_hu03_editar_producto_que_no_existe(cliente):
     assert resp.status_code == 404
 
 
-# HU-04 eliminar producto agotado
-
-
 def test_hu04_producto_agotado_se_elimina_y_sigue_en_el_reporte(cliente):
     cubre = crear(cliente, "Cubre manubrio", 15000, 1)
     vender(cliente, cubre, 1, fecha="2026-10-15")
@@ -163,9 +151,6 @@ def test_hu04_producto_con_stock_no_se_elimina(cliente):
         "No se puede eliminar: todavía tiene 4 unidades en stock"
     )
     assert stock(cliente, espejo) == 4
-
-
-# HU-05 entradas de mercancía
 
 
 def test_hu05_entrada_sube_el_stock_y_se_guarda(cliente, ruta_db):
@@ -190,9 +175,6 @@ def test_hu05_cantidad_cero_no_cambia_el_stock(cliente):
     assert stock(cliente, guaya) == 2
 
 
-# HU-06 ventas
-
-
 def test_hu06_venta_guarda_el_total_y_baja_el_stock(cliente):
     espejo = crear(cliente, "Espejo retrovisor", 25000, 8)
     resp = vender(cliente, espejo, 2)
@@ -212,9 +194,6 @@ def test_hu06_venta_mayor_al_stock_no_se_guarda(cliente):
 
 def test_hu06_vender_producto_que_no_existe(cliente):
     assert vender(cliente, 99, 1).status_code == 404
-
-
-# HU-08 corregir una venta
 
 
 def detalle_de_la_venta(ruta_db, id_venta):
@@ -262,9 +241,6 @@ def test_hu08_corregir_a_mas_de_lo_que_hay_falla(cliente, ruta_db):
     assert stock(cliente, guaya) == 1
 
 
-# HU-10 reporte mensual
-
-
 def test_hu10_reporte_de_noviembre(cliente):
     casco = crear(cliente, "Casco integral", 180000, 10)
     guantes = crear(cliente, "Guantes de moto", 40000, 10)
@@ -308,9 +284,6 @@ def test_hu10_pantalla_muestra_el_detalle_de_cada_venta(cliente):
 
 def test_hu10_mes_invalido(cliente):
     assert reporte(cliente, "2026-13").status_code == 400
-
-
-# Pantallas
 
 
 @pytest.mark.parametrize("url", ["/", "/ventas", "/reporte"])

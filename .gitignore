@@ -8,6 +8,4 @@ __pycache__/
 .ruff_cache/
 *.pyc
 *.egg-info/
-
-# Base de datos con los datos reales del negocio: nunca se sube
 *.db

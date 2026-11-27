@@ -1,10 +1,3 @@
-"""Aplicación web de R2K. Se abre con iniciar.bat o con: python -m r2k.app
-
-Tiene dos partes:
-- Las pantallas (/, /editar, /ventas, /reporte) que ve el dueño.
-- Las rutas en JSON del Diseño S4, sección 6, que usan esas pantallas.
-"""
-
 import threading
 import webbrowser
 from datetime import date
@@ -21,7 +14,6 @@ MESES = [
     "agosto", "septiembre", "octubre", "noviembre", "diciembre",
 ]
 
-# Qué código HTTP devuelve cada error del inventario (Diseño S4, sección 6)
 CODIGOS = {
     inv.ProductoInvalidoError: 400,
     inv.CantidadInvalidaError: 400,
@@ -33,7 +25,6 @@ CODIGOS = {
 
 
 def pesos(valor):
-    """790000 -> $790.000"""
     return "$" + f"{valor:,}".replace(",", ".")
 
 
@@ -59,8 +50,6 @@ def crear_app(ruta_db=datos.RUTA_DB):
     def cuerpo():
         return request.get_json(silent=True) or {}
 
-    # Pantallas
-
     @app.get("/")
     def pantalla_productos():
         buscar = request.args.get("buscar", "")
@@ -69,10 +58,7 @@ def crear_app(ruta_db=datos.RUTA_DB):
 
     @app.get("/editar/<int:id_producto>")
     def pantalla_editar(id_producto):
-        producto = con().execute(
-            "SELECT * FROM producto WHERE id_producto = ? AND activo = 1",
-            (id_producto,),
-        ).fetchone()
+        producto = datos.obtener_producto(con(), id_producto)
         if producto is None:
             return render_template("base.html", error="Ese producto no existe"), 404
         return render_template(
@@ -108,8 +94,6 @@ def crear_app(ruta_db=datos.RUTA_DB):
             num_ventas=len({fila["id_venta"] for fila in detalle}),
         )
 
-    # Rutas JSON (Diseño S4, sección 6)
-
     @app.get("/productos")
     def buscar_productos():
         filas = datos.listar_productos(con(), request.args.get("buscar", ""))
@@ -119,10 +103,7 @@ def crear_app(ruta_db=datos.RUTA_DB):
     def crear_producto():
         d = cuerpo()
         id_producto = datos.crear_producto(
-            con(),
-            d.get("nombre"),
-            d.get("precio_venta"),
-            d.get("stock_actual"),
+            con(), d.get("nombre"), d.get("precio_venta"), d.get("stock_actual")
         )
         return jsonify(id_producto=id_producto), 201
 
@@ -172,7 +153,6 @@ def crear_app(ruta_db=datos.RUTA_DB):
 
 def main():
     app = crear_app()
-    # Abre el navegador un segundo después, cuando el servidor ya arrancó
     threading.Timer(1, webbrowser.open, [f"http://localhost:{PUERTO}"]).start()
     print(f"CRUD R2K abierto en http://localhost:{PUERTO}")
     print("No cierre esta ventana mientras use la aplicación.")
