@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h2>Llegó mercancía</h2>
+<form data-metodo="POST" data-url="/entradas" data-ok="Entrada registrada" class="formulario">
+  <label>Producto
+    <select name="id_producto" data-numero required>
+      <option value="">Elija un producto</option>
+      {% for p in productos %}
+      <option value="{{ p.id_producto }}">{{ p.nombre }} (quedan {{ p.stock_actual }})</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Cantidad que llegó <input name="cantidad" data-numero required></label>
+  <label>Costo de cada unidad <input name="costo_unitario" data-numero required></label>
+  <button>Registrar entrada</button>
+</form>
+<p>¿El producto es nuevo? Primero regístrelo en <a href="/">Productos</a>.</p>
+
+<h2>Últimas entradas</h2>
+{% if entradas %}
+<table>
+  <tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Costo por unidad</th></tr>
+  {% for e in entradas %}
+  <tr>
+    <td>{{ e.fecha }}</td>
+    <td>{{ e.nombre }}</td>
+    <td>{{ e.cantidad }}</td>
+    <td>{{ e.costo_unitario|pesos }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Todavía no hay entradas.</p>
+{% endif %}
+{% endblock %}

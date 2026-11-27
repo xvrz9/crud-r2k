@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h2>Productos</h2>
+
+<form method="get" action="/" class="fila">
+  <input name="buscar" value="{{ buscar }}" placeholder="Buscar por nombre">
+  <button>Buscar</button>
+  {% if buscar %}<a href="/">Ver todos</a>{% endif %}
+</form>
+
+{% if productos %}
+<table>
+  <tr><th>Producto</th><th>Precio de venta</th><th>Quedan</th><th></th></tr>
+  {% for p in productos %}
+  <tr>
+    <td>{{ p.nombre }}</td>
+    <td>{{ p.precio_venta|pesos }}</td>
+    <td>{{ p.stock_actual }}</td>
+    <td class="acciones">
+      <a class="boton" href="/editar/{{ p.id_producto }}">Editar</a>
+      <form data-metodo="DELETE" data-url="/productos/{{ p.id_producto }}"
+            data-confirmar="¿Eliminar {{ p.nombre }}?" data-ok="Producto eliminado">
+        <button class="peligro">Eliminar</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% elif buscar %}
+<p>No se encontraron productos</p>
+{% else %}
+<p>Todavía no hay productos. Registre el primero aquí abajo.</p>
+{% endif %}
+
+<h2>Nuevo producto</h2>
+<form data-metodo="POST" data-url="/productos" data-ok="Producto guardado" class="formulario">
+  <label>Nombre <input name="nombre" required></label>
+  <label>Precio de compra <input name="precio_compra" data-numero required></label>
+  <label>Precio de venta <input name="precio_venta" data-numero required></label>
+  <label>Cantidad <input name="stock_actual" data-numero value="0" required></label>
+  <button>Guardar producto</button>
+</form>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h2>Editar producto</h2>
+<p>Quedan {{ producto.stock_actual }} unidades. Las ventas anteriores conservan su precio.</p>
+
+<form data-metodo="PUT" data-url="/productos/{{ producto.id_producto }}"
+      data-ok="Producto actualizado" data-volver="/" class="formulario">
+  <label>Nombre <input name="nombre" value="{{ producto.nombre }}" required></label>
+  <label>Precio de compra
+    <input name="precio_compra" data-numero value="{{ producto.precio_compra }}" required>
+  </label>
+  <label>Precio de venta
+    <input name="precio_venta" data-numero value="{{ producto.precio_venta }}" required>
+  </label>
+  <button>Guardar cambios</button>
+  <a href="/">Cancelar</a>
+</form>
+{% endblock %}

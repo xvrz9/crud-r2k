@@ -34,6 +34,10 @@ class ProductoConStockError(ErrorInventario):
     pass
 
 
+class VentaNoEncontradaError(ErrorInventario):
+    pass
+
+
 def _es_entero(valor):
     # bool es subclase de int en Python, por eso se descarta aparte
     return isinstance(valor, int) and not isinstance(valor, bool)
@@ -86,6 +90,24 @@ def _validar_stock_suficiente(producto, cantidad):
         )
 
 
+def validar_datos_producto(nombre, precio_compra, precio_venta, stock_actual=0):
+    """Revisa los datos antes de guardar un producto (HU-01 y HU-03)."""
+    if not isinstance(nombre, str) or not nombre.strip():
+        raise ProductoInvalidoError("El nombre no puede estar vacío")
+    if not _es_entero(precio_compra) or precio_compra < 0:
+        raise ProductoInvalidoError("El precio de compra no puede ser negativo")
+    if not _es_entero(precio_venta) or precio_venta <= 0:
+        raise ProductoInvalidoError("El precio de venta debe ser mayor que 0")
+    if not _es_entero(stock_actual) or stock_actual < 0:
+        raise ProductoInvalidoError("La cantidad no puede ser negativa")
+
+
+def validar_costo(costo_unitario):
+    """El costo de una entrada de mercancía es un entero en pesos (HU-05)."""
+    if not _es_entero(costo_unitario) or costo_unitario < 0:
+        raise ProductoInvalidoError("El costo no puede ser negativo")
+
+
 def registrar_salida(productos, id_producto, cantidad):
     """Registra una venta y descuenta el stock (HU-06). Devuelve el nuevo stock.
 
@@ -103,6 +125,17 @@ def registrar_entrada(productos, id_producto, cantidad):
     producto = _buscar_producto(productos, id_producto)
     _validar_cantidad(cantidad)
     producto.stock_actual += cantidad
+    return producto.stock_actual
+
+
+def corregir_venta(producto, cantidad_anterior, cantidad_nueva):
+    """Cambia la cantidad de una venta ya registrada (HU-08). Devuelve el nuevo stock.
+
+    Si ahora se vendió menos, el stock sube; si se vendió más, baja.
+    """
+    _validar_cantidad(cantidad_nueva)
+    _validar_stock_suficiente(producto, cantidad_nueva - cantidad_anterior)
+    producto.stock_actual -= cantidad_nueva - cantidad_anterior
     return producto.stock_actual
 
 

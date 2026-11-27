@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h2>Reporte de ventas del mes</h2>
+<form method="get" action="/reporte" class="fila">
+  <input type="month" name="mes" value="{{ reporte.mes }}">
+  <button>Ver</button>
+</form>
+
+{% if reporte.productos %}
+<table>
+  <tr><th>Producto</th><th>Cantidad vendida</th><th>Valor</th></tr>
+  {% for fila in reporte.productos %}
+  <tr>
+    <td>{{ fila.nombre }}</td>
+    <td>{{ fila.cantidad }}</td>
+    <td>{{ fila.valor|pesos }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No hay ventas en este mes</p>
+{% endif %}
+
+<p class="total">Total vendido: {{ reporte.total_vendido|pesos }}</p>
+{% endblock %}
