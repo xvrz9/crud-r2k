@@ -23,7 +23,7 @@ Es una aplicación web local (Python, Flask y SQLite) que se abre en el navegado
 | HU-05 | Registrar la mercancía que llega; el stock sube solo | Productos → Agregar unidades |
 | HU-06 | Registrar una venta; el stock baja solo | Ventas |
 | HU-08 | Corregir la cantidad de una venta mal anotada | Ventas |
-| HU-10 | Reporte del mes: cuánto se vendió de cada producto y el total | Reporte del mes |
+| HU-10 | Reporte del mes: total vendido, gráficas por producto y por día, y el detalle de cada venta | Reporte del mes |
 | RNF-03 | Copia de seguridad de los datos a una memoria USB | `copia_usb.bat` |
 
 No calcula ganancias ni gastos (HU-07 y HU-09 quedaron fuera por decisión del cliente).
@@ -33,6 +33,15 @@ precio de compra del producto y el costo de cada entrada. Esos datos solo serví
 ganancia, y cuando la ganancia salió del alcance se nos pasó quitarlos. Lo vi al probar la app y los
 quité: la app pide solo el precio de venta y la cantidad. Los documentos ya estaban entregados, así que
 el cambio queda explicado aquí y en el informe final.
+
+**Otros cambios después de probar la app** (no contradicen los documentos, cambian cómo se ve):
+
+- La pantalla aparte de «Mercancía» se quitó: agregar unidades (HU-05) se hace desde Productos, con el
+  botón «Agregar unidades». La ruta `POST /entradas` del diseño es la misma.
+- El reporte del mes (HU-10) sigue mostrando cada producto con su cantidad y valor y el total del mes,
+  como pide el documento. Además tiene una gráfica de barras por producto, una gráfica de ventas por
+  día y el detalle de cada venta (fecha, producto, cantidad y valor), para que se lea más fácil
+  (RNF-01).
 
 ## 2. Requisitos
 
