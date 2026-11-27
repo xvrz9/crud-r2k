@@ -186,6 +186,9 @@ acepté, qué no y por qué.
   la documentación.
 - **Semana 7:** me sugirió casos de prueba. Los revisé uno por uno y quité o arreglé los que no
   servían.
+- **Entrega final:** me ayudó a escribir la app y a ordenar los documentos. Yo la probé en mi
+  portátil y le pedí cambios: quitar el precio de compra, que no servía, agregar unidades desde
+  Productos y mejorar el diseño y el reporte.
 - No cambié pruebas para que pasaran, no acepté nada sin probarlo y no subí datos reales del negocio.
 
 ## 8. Autor y licencia
