@@ -7,7 +7,7 @@ Proyecto final del Seminario de IA Aplicada al Ciclo de Vida del Software (FET).
 Sistema para que R2K, una microempresa de accesorios para motos en Neiva, deje de llevar el inventario y
 las cuentas en un cuaderno. El objetivo es controlar qué mercancía entra y qué se vende.
 
-El primer incremento es la lógica de inventario de la **HU-02: registrar la venta de un producto y
+El primer incremento es la lógica de inventario de la **HU-06: registrar la venta de un producto y
 descontar el stock**. Es una función de dominio pura (`registrar_salida`), sin base de datos ni interfaz
 web todavía. El contrato completo está en la sección [Funcionalidad de la semana 5](#funcionalidad-de-la-semana-5).
 
@@ -118,17 +118,15 @@ crud-r2k/
 
 ## 7. Uso de IA
 
-Este proyecto se desarrolla con ayuda de asistentes de IA y eso se declara:
+Usé Claude como ayuda en el proyecto. En [bitacora_ia.md](bitacora_ia.md) anoté lo que le pedí, qué
+acepté, qué no y por qué.
 
-- **Asistente:** Claude (Claude Code), como agente de código y como revisor.
-- **Semana 5:** propuso el contrato, las pruebas y el refactor de `registrar_salida`.
-- **Semana 6:** un agente pasó el linter, hizo la segunda revisión del código, corrigió los hallazgos y
-  redactó los borradores de los docstrings, de este README y del informe. Trabajó en la rama
-  `agente/revision-s6`, con un commit por corrección.
-- **Reglas:** ninguna prueba se modifica para que pase, cada hallazgo de la IA se verifica ejecutando el
-  código antes de aceptarlo, y no se suben claves ni datos reales del negocio.
-- Cada sugerencia, con la decisión y la verificación, está en [bitacora_ia.md](bitacora_ia.md). Los
-  hallazgos de la revisión están en [revision_seguridad.md](revision_seguridad.md).
+- **Semana 5:** me ayudó a pensar los casos de prueba de la venta y a ordenar mejor el código.
+- **Semana 6:** le pedí que revisara el código buscando errores y problemas de seguridad. Lo que
+  encontró lo probé antes de corregirlo. Los cambios se hicieron en una rama aparte
+  (`agente/revision-s6`) y los revisé antes de pasarlos a la principal. También me ayudó a redactar
+  la documentación.
+- No cambié pruebas para que pasaran, no acepté nada sin probarlo y no subí datos reales del negocio.
 
 ## 8. Autor y licencia
 
@@ -142,7 +140,7 @@ Este proyecto se desarrolla con ayuda de asistentes de IA y eso se declara:
 
 ### Historia de usuario
 
-**HU-02: Registrar la venta de un producto y descontar el stock** (Prioridad: Must)
+**HU-06: Registrar la venta de un producto y descontar el stock** (Prioridad: Must)
 
 Como dueño de R2K, quiero registrar cada producto que vendo para que se descuente automáticamente
 del stock, para saber en todo momento cuánta mercancía me queda sin revisar el cuaderno.
