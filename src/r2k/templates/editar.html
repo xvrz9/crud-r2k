@@ -7,34 +7,27 @@
 <form data-metodo="POST" data-url="/entradas" data-ok="Unidades agregadas" class="formulario">
   <input type="hidden" name="id_producto" data-numero value="{{ producto.id_producto }}">
   <label>Cantidad que llegó <input name="cantidad" data-numero required></label>
-  <label>Costo de cada unidad
-    <input name="costo_unitario" data-numero value="{{ producto.precio_compra }}" required>
-  </label>
   <button>Agregar unidades</button>
 </form>
 
 {% if entradas %}
 <h3>Últimas veces que llegó</h3>
 <table>
-  <tr><th>Fecha</th><th>Cantidad</th><th>Costo por unidad</th></tr>
+  <tr><th>Fecha</th><th>Cantidad</th></tr>
   {% for e in entradas %}
   <tr>
     <td>{{ e.fecha }}</td>
     <td>{{ e.cantidad }}</td>
-    <td>{{ e.costo_unitario|pesos }}</td>
   </tr>
   {% endfor %}
 </table>
 {% endif %}
 
-<h2>Editar nombre y precios</h2>
+<h2>Editar nombre y precio</h2>
 <p>Las ventas anteriores conservan su precio.</p>
 <form data-metodo="PUT" data-url="/productos/{{ producto.id_producto }}"
       data-ok="Producto actualizado" data-volver="/" class="formulario">
   <label>Nombre <input name="nombre" value="{{ producto.nombre }}" required></label>
-  <label>Precio de compra
-    <input name="precio_compra" data-numero value="{{ producto.precio_compra }}" required>
-  </label>
   <label>Precio de venta
     <input name="precio_venta" data-numero value="{{ producto.precio_venta }}" required>
   </label>

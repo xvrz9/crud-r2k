@@ -16,9 +16,9 @@ Es una aplicación web local (Python, Flask y SQLite) que se abre en el navegado
 
 | Historia | Qué hace | Pantalla |
 |---|---|---|
-| HU-01 | Registrar un producto con sus precios y cantidad | Productos |
+| HU-01 | Registrar un producto con su precio de venta y cantidad | Productos |
 | HU-02 | Buscar un producto por nombre | Productos |
-| HU-03 | Editar el nombre y los precios (las ventas viejas conservan su precio) | Productos → Editar |
+| HU-03 | Editar el nombre y el precio (las ventas viejas conservan su precio) | Productos → Editar |
 | HU-04 | Eliminar un producto agotado (solo con stock 0) | Productos |
 | HU-05 | Registrar la mercancía que llega; el stock sube solo | Productos → Agregar unidades |
 | HU-06 | Registrar una venta; el stock baja solo | Ventas |
@@ -27,6 +27,12 @@ Es una aplicación web local (Python, Flask y SQLite) que se abre en el navegado
 | RNF-03 | Copia de seguridad de los datos a una memoria USB | `copia_usb.bat` |
 
 No calcula ganancias ni gastos (HU-07 y HU-09 quedaron fuera por decisión del cliente).
+
+**Cambio respecto a los documentos S3 y S4:** la HU-01, la HU-05 y el modelo de datos todavía piden el
+precio de compra del producto y el costo de cada entrada. Esos datos solo servían para calcular la
+ganancia, y cuando la ganancia salió del alcance se nos pasó quitarlos. Lo vi al probar la app y los
+quité: la app pide solo el precio de venta y la cantidad. Los documentos ya estaban entregados, así que
+el cambio queda explicado aquí y en el informe final.
 
 ## 2. Requisitos
 

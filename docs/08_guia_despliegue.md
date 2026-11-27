@@ -38,7 +38,7 @@ Después de instalar, hacer esta prueba corta con datos de ejemplo:
 
 | Paso | Qué se hace | Qué debe pasar |
 |---|---|---|
-| 1 | Crear «Sticker de prueba», compra $1.000, venta $2.000, cantidad 1 | Aparece en la lista |
+| 1 | Crear «Sticker de prueba», precio de venta $2.000, cantidad 1 | Aparece en la lista |
 | 2 | Venderlo | El stock queda en 0 |
 | 3 | Abrir el reporte del mes actual | Sale el sticker y el total $2.000 |
 | 4 | Eliminar el sticker (ya tiene stock 0) | Desaparece de la lista, pero sigue en el reporte |

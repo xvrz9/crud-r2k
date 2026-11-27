@@ -17,7 +17,6 @@ ESQUEMA = """
 CREATE TABLE IF NOT EXISTS producto (
     id_producto   INTEGER PRIMARY KEY,
     nombre        TEXT NOT NULL,
-    precio_compra INTEGER NOT NULL,
     precio_venta  INTEGER NOT NULL,
     stock_actual  INTEGER NOT NULL,
     activo        INTEGER NOT NULL DEFAULT 1
@@ -26,8 +25,7 @@ CREATE TABLE IF NOT EXISTS entrada (
     id_entrada     INTEGER PRIMARY KEY,
     id_producto    INTEGER NOT NULL REFERENCES producto (id_producto),
     fecha          TEXT NOT NULL,
-    cantidad       INTEGER NOT NULL,
-    costo_unitario INTEGER NOT NULL
+    cantidad       INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS venta (
     id_venta INTEGER PRIMARY KEY,
@@ -77,10 +75,12 @@ def _cargar(con, id_producto):
     ).fetchone()
     if fila is None:
         return {}
+    # La app no maneja precio de compra (no calcula ganancia). La clase Producto
+    # de la semana 5 todavía lo tiene, por eso se le pasa 0.
     producto = inv.Producto(
         fila["id_producto"],
         fila["nombre"],
-        fila["precio_compra"],
+        0,
         fila["precio_venta"],
         fila["stock_actual"],
         bool(fila["activo"]),
@@ -106,29 +106,28 @@ def listar_productos(con, buscar=""):
     ).fetchall()
 
 
-def crear_producto(con, nombre, precio_compra, precio_venta, stock_actual):
+def crear_producto(con, nombre, precio_venta, stock_actual):
     """Registra un producto nuevo (HU-01). Devuelve su id."""
-    inv.validar_datos_producto(nombre, precio_compra, precio_venta, stock_actual)
+    inv.validar_datos_producto(nombre, precio_venta, stock_actual)
     with con:
         cursor = con.execute(
-            "INSERT INTO producto (nombre, precio_compra, precio_venta, stock_actual) "
-            "VALUES (?, ?, ?, ?)",
-            (nombre.strip(), precio_compra, precio_venta, stock_actual),
+            "INSERT INTO producto (nombre, precio_venta, stock_actual) "
+            "VALUES (?, ?, ?)",
+            (nombre.strip(), precio_venta, stock_actual),
         )
     return cursor.lastrowid
 
 
-def editar_producto(con, id_producto, nombre, precio_compra, precio_venta):
-    """Cambia el nombre y los precios (HU-03). Las ventas viejas no cambian."""
+def editar_producto(con, id_producto, nombre, precio_venta):
+    """Cambia el nombre y el precio (HU-03). Las ventas viejas no cambian."""
     productos = _cargar(con, id_producto)
     if not productos or not productos[id_producto].activo:
         raise inv.ProductoNoEncontradoError(f"No existe el producto {id_producto}")
-    inv.validar_datos_producto(nombre, precio_compra, precio_venta)
+    inv.validar_datos_producto(nombre, precio_venta)
     with con:
         con.execute(
-            "UPDATE producto SET nombre = ?, precio_compra = ?, precio_venta = ? "
-            "WHERE id_producto = ?",
-            (nombre.strip(), precio_compra, precio_venta, id_producto),
+            "UPDATE producto SET nombre = ?, precio_venta = ? WHERE id_producto = ?",
+            (nombre.strip(), precio_venta, id_producto),
         )
 
 
@@ -143,18 +142,16 @@ def eliminar_producto(con, id_producto):
 # Entradas de mercancía (HU-05)
 
 
-def registrar_entrada(con, id_producto, cantidad, costo_unitario, fecha=None):
+def registrar_entrada(con, id_producto, cantidad, fecha=None):
     """Guarda la mercancía que llegó y sube el stock. Devuelve el nuevo stock."""
     fecha = fecha or _hoy()
     _validar_fecha(fecha)
-    inv.validar_costo(costo_unitario)
     productos = _cargar(con, id_producto)
     nuevo_stock = inv.registrar_entrada(productos, id_producto, cantidad)
     with con:
         con.execute(
-            "INSERT INTO entrada (id_producto, fecha, cantidad, costo_unitario) "
-            "VALUES (?, ?, ?, ?)",
-            (id_producto, fecha, cantidad, costo_unitario),
+            "INSERT INTO entrada (id_producto, fecha, cantidad) VALUES (?, ?, ?)",
+            (id_producto, fecha, cantidad),
         )
         _guardar_stock(con, productos[id_producto])
     return nuevo_stock

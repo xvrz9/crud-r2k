@@ -90,22 +90,14 @@ def _validar_stock_suficiente(producto, cantidad):
         )
 
 
-def validar_datos_producto(nombre, precio_compra, precio_venta, stock_actual=0):
+def validar_datos_producto(nombre, precio_venta, stock_actual=0):
     """Revisa los datos antes de guardar un producto (HU-01 y HU-03)."""
     if not isinstance(nombre, str) or not nombre.strip():
         raise ProductoInvalidoError("El nombre no puede estar vacío")
-    if not _es_entero(precio_compra) or precio_compra < 0:
-        raise ProductoInvalidoError("El precio de compra no puede ser negativo")
     if not _es_entero(precio_venta) or precio_venta <= 0:
         raise ProductoInvalidoError("El precio de venta debe ser mayor que 0")
     if not _es_entero(stock_actual) or stock_actual < 0:
         raise ProductoInvalidoError("La cantidad no puede ser negativa")
-
-
-def validar_costo(costo_unitario):
-    """El costo de una entrada de mercancía es un entero en pesos (HU-05)."""
-    if not _es_entero(costo_unitario) or costo_unitario < 0:
-        raise ProductoInvalidoError("El costo no puede ser negativo")
 
 
 def registrar_salida(productos, id_producto, cantidad):

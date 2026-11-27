@@ -106,7 +106,6 @@ def crear_app(ruta_db=datos.RUTA_DB):
         id_producto = datos.crear_producto(
             con(),
             d.get("nombre"),
-            d.get("precio_compra"),
             d.get("precio_venta"),
             d.get("stock_actual"),
         )
@@ -116,8 +115,7 @@ def crear_app(ruta_db=datos.RUTA_DB):
     def editar_producto(id_producto):
         d = cuerpo()
         datos.editar_producto(
-            con(), id_producto, d.get("nombre"), d.get("precio_compra"),
-            d.get("precio_venta"),
+            con(), id_producto, d.get("nombre"), d.get("precio_venta")
         )
         return jsonify(mensaje="Producto actualizado")
 
@@ -130,8 +128,7 @@ def crear_app(ruta_db=datos.RUTA_DB):
     def registrar_entrada():
         d = cuerpo()
         stock = datos.registrar_entrada(
-            con(), d.get("id_producto"), d.get("cantidad"), d.get("costo_unitario"),
-            d.get("fecha"),
+            con(), d.get("id_producto"), d.get("cantidad"), d.get("fecha")
         )
         return jsonify(stock_actual=stock), 201
 

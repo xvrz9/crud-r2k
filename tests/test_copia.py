@@ -7,7 +7,7 @@ from r2k.copia import copiar
 def test_la_copia_tiene_los_mismos_datos(tmp_path):
     ruta = tmp_path / "r2k.db"
     con = datos.conectar(ruta)
-    datos.crear_producto(con, "Casco integral", 120000, 180000, 10)
+    datos.crear_producto(con, "Casco integral", 180000, 10)
     con.close()
     usb = tmp_path / "usb"
     usb.mkdir()

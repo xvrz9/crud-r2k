@@ -14,15 +14,10 @@ def cliente(ruta_db):
     return crear_app(ruta_db).test_client()
 
 
-def crear(cliente, nombre, compra, venta, cantidad):
+def crear(cliente, nombre, venta, cantidad):
     resp = cliente.post(
         "/productos",
-        json={
-            "nombre": nombre,
-            "precio_compra": compra,
-            "precio_venta": venta,
-            "stock_actual": cantidad,
-        },
+        json={"nombre": nombre, "precio_venta": venta, "stock_actual": cantidad},
     )
     assert resp.status_code == 201
     return resp.get_json()["id_producto"]
@@ -52,10 +47,9 @@ def reporte(cliente, mes):
 
 
 def test_hu01_producto_registrado_aparece_en_la_lista(cliente):
-    crear(cliente, "Sticker reflectivo para casco", 3000, 8000, 20)
+    crear(cliente, "Sticker reflectivo para casco", 8000, 20)
     producto = lista(cliente)[0]
     assert producto["nombre"] == "Sticker reflectivo para casco"
-    assert producto["precio_compra"] == 3000
     assert producto["precio_venta"] == 8000
     assert producto["stock_actual"] == 20
 
@@ -65,7 +59,6 @@ def test_hu01_precio_de_venta_cero_no_se_guarda(cliente):
         "/productos",
         json={
             "nombre": "Sticker reflectivo para casco",
-            "precio_compra": 3000,
             "precio_venta": 0,
             "stock_actual": 20,
         },
@@ -76,23 +69,17 @@ def test_hu01_precio_de_venta_cero_no_se_guarda(cliente):
 
 
 @pytest.mark.parametrize(
-    "nombre, compra, venta, cantidad",
+    "nombre, venta, cantidad",
     [
-        ("", 3000, 8000, 20),
-        ("Sticker", -1, 8000, 20),
-        ("Sticker", 3000, "8000", 20),
-        ("Sticker", 3000, 8000, -1),
+        ("", 8000, 20),
+        ("Sticker", "8000", 20),
+        ("Sticker", 8000, -1),
     ],
 )
-def test_hu01_datos_invalidos_no_se_guardan(cliente, nombre, compra, venta, cantidad):
+def test_hu01_datos_invalidos_no_se_guardan(cliente, nombre, venta, cantidad):
     resp = cliente.post(
         "/productos",
-        json={
-            "nombre": nombre,
-            "precio_compra": compra,
-            "precio_venta": venta,
-            "stock_actual": cantidad,
-        },
+        json={"nombre": nombre, "precio_venta": venta, "stock_actual": cantidad},
     )
     assert resp.status_code == 400
     assert lista(cliente) == []
@@ -102,8 +89,8 @@ def test_hu01_datos_invalidos_no_se_guardan(cliente, nombre, compra, venta, cant
 
 
 def test_hu02_busqueda_muestra_solo_los_que_coinciden(cliente):
-    crear(cliente, "Espejo retrovisor", 10000, 25000, 8)
-    crear(cliente, "Casco integral", 120000, 180000, 10)
+    crear(cliente, "Espejo retrovisor", 25000, 8)
+    crear(cliente, "Casco integral", 180000, 10)
     encontrados = lista(cliente, "espejo")
     assert len(encontrados) == 1
     assert encontrados[0]["nombre"] == "Espejo retrovisor"
@@ -112,7 +99,7 @@ def test_hu02_busqueda_muestra_solo_los_que_coinciden(cliente):
 
 
 def test_hu02_busqueda_sin_resultados(cliente):
-    crear(cliente, "Espejo retrovisor", 10000, 25000, 8)
+    crear(cliente, "Espejo retrovisor", 25000, 8)
     assert lista(cliente, "xyz123") == []
     pagina = cliente.get("/?buscar=xyz123").get_data(as_text=True)
     assert "No se encontraron productos" in pagina
@@ -122,16 +109,12 @@ def test_hu02_busqueda_sin_resultados(cliente):
 
 
 def test_hu03_precio_nuevo_no_cambia_las_ventas_anteriores(cliente):
-    casco = crear(cliente, "Casco abierto", 90000, 120000, 10)
+    casco = crear(cliente, "Casco abierto", 120000, 10)
     for _ in range(3):
         vender(cliente, casco, 1)
     resp = cliente.put(
         f"/productos/{casco}",
-        json={
-            "nombre": "Casco abierto",
-            "precio_compra": 90000,
-            "precio_venta": 135000,
-        },
+        json={"nombre": "Casco abierto", "precio_venta": 135000},
     )
     assert resp.status_code == 200
     vender(cliente, casco, 1)
@@ -141,10 +124,10 @@ def test_hu03_precio_nuevo_no_cambia_las_ventas_anteriores(cliente):
 
 
 def test_hu03_precio_negativo_se_rechaza(cliente):
-    casco = crear(cliente, "Casco abierto", 90000, 120000, 10)
+    casco = crear(cliente, "Casco abierto", 120000, 10)
     resp = cliente.put(
         f"/productos/{casco}",
-        json={"nombre": "Casco abierto", "precio_compra": 90000, "precio_venta": -5000},
+        json={"nombre": "Casco abierto", "precio_venta": -5000},
     )
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "El precio de venta debe ser mayor que 0"
@@ -154,7 +137,7 @@ def test_hu03_precio_negativo_se_rechaza(cliente):
 def test_hu03_editar_producto_que_no_existe(cliente):
     resp = cliente.put(
         "/productos/99",
-        json={"nombre": "X", "precio_compra": 1, "precio_venta": 2},
+        json={"nombre": "X", "precio_venta": 2},
     )
     assert resp.status_code == 404
 
@@ -163,7 +146,7 @@ def test_hu03_editar_producto_que_no_existe(cliente):
 
 
 def test_hu04_producto_agotado_se_elimina_y_sigue_en_el_reporte(cliente):
-    cubre = crear(cliente, "Cubre manubrio", 8000, 15000, 1)
+    cubre = crear(cliente, "Cubre manubrio", 15000, 1)
     vender(cliente, cubre, 1, fecha="2026-10-15")
     resp = cliente.delete(f"/productos/{cubre}")
     assert resp.status_code == 200
@@ -173,7 +156,7 @@ def test_hu04_producto_agotado_se_elimina_y_sigue_en_el_reporte(cliente):
 
 
 def test_hu04_producto_con_stock_no_se_elimina(cliente):
-    espejo = crear(cliente, "Espejo retrovisor", 10000, 25000, 4)
+    espejo = crear(cliente, "Espejo retrovisor", 25000, 4)
     resp = cliente.delete(f"/productos/{espejo}")
     assert resp.status_code == 409
     assert resp.get_json()["error"] == (
@@ -185,22 +168,23 @@ def test_hu04_producto_con_stock_no_se_elimina(cliente):
 # HU-05 entradas de mercancía
 
 
-def test_hu05_entrada_sube_el_stock_y_se_guarda(cliente):
-    guaya = crear(cliente, "Guaya de freno", 5000, 8000, 2)
+def test_hu05_entrada_sube_el_stock_y_se_guarda(cliente, ruta_db):
+    guaya = crear(cliente, "Guaya de freno", 8000, 2)
     resp = cliente.post(
-        "/entradas", json={"id_producto": guaya, "cantidad": 10, "costo_unitario": 6000}
+        "/entradas",
+        json={"id_producto": guaya, "cantidad": 10, "fecha": "2026-11-20"},
     )
     assert resp.status_code == 201
     assert stock(cliente, guaya) == 12
-    pagina = cliente.get(f"/editar/{guaya}").get_data(as_text=True)
-    assert "$6.000" in pagina
+    con = datos.conectar(ruta_db)
+    entrada = datos.listar_entradas(con, guaya)[0]
+    con.close()
+    assert (entrada["fecha"], entrada["cantidad"]) == ("2026-11-20", 10)
 
 
 def test_hu05_cantidad_cero_no_cambia_el_stock(cliente):
-    guaya = crear(cliente, "Guaya de freno", 5000, 8000, 2)
-    resp = cliente.post(
-        "/entradas", json={"id_producto": guaya, "cantidad": 0, "costo_unitario": 6000}
-    )
+    guaya = crear(cliente, "Guaya de freno", 8000, 2)
+    resp = cliente.post("/entradas", json={"id_producto": guaya, "cantidad": 0})
     assert resp.status_code == 400
     assert "La cantidad debe ser al menos 1" in resp.get_json()["error"]
     assert stock(cliente, guaya) == 2
@@ -210,7 +194,7 @@ def test_hu05_cantidad_cero_no_cambia_el_stock(cliente):
 
 
 def test_hu06_venta_guarda_el_total_y_baja_el_stock(cliente):
-    espejo = crear(cliente, "Espejo retrovisor", 10000, 25000, 8)
+    espejo = crear(cliente, "Espejo retrovisor", 25000, 8)
     resp = vender(cliente, espejo, 2)
     assert resp.status_code == 201
     assert resp.get_json()["total"] == 50000
@@ -218,7 +202,7 @@ def test_hu06_venta_guarda_el_total_y_baja_el_stock(cliente):
 
 
 def test_hu06_venta_mayor_al_stock_no_se_guarda(cliente):
-    guaya = crear(cliente, "Guaya de freno", 5000, 8000, 1)
+    guaya = crear(cliente, "Guaya de freno", 8000, 1)
     resp = vender(cliente, guaya, 3)
     assert resp.status_code == 409
     assert resp.get_json()["error"] == "Stock insuficiente: solo hay 1 unidad"
@@ -243,7 +227,7 @@ def detalle_de_la_venta(ruta_db, id_venta):
 
 
 def test_hu08_corregir_cantidad_ajusta_total_y_stock(cliente, ruta_db):
-    guaya = crear(cliente, "Guaya de freno", 5000, 8000, 5)
+    guaya = crear(cliente, "Guaya de freno", 8000, 5)
     id_venta = vender(cliente, guaya, 2).get_json()["id_venta"]
     id_detalle = detalle_de_la_venta(ruta_db, id_venta)
     resp = cliente.patch(
@@ -255,7 +239,7 @@ def test_hu08_corregir_cantidad_ajusta_total_y_stock(cliente, ruta_db):
 
 
 def test_hu08_cantidad_cero_deja_la_venta_igual(cliente, ruta_db):
-    guaya = crear(cliente, "Guaya de freno", 5000, 8000, 5)
+    guaya = crear(cliente, "Guaya de freno", 8000, 5)
     id_venta = vender(cliente, guaya, 2).get_json()["id_venta"]
     id_detalle = detalle_de_la_venta(ruta_db, id_venta)
     resp = cliente.patch(
@@ -268,7 +252,7 @@ def test_hu08_cantidad_cero_deja_la_venta_igual(cliente, ruta_db):
 
 
 def test_hu08_corregir_a_mas_de_lo_que_hay_falla(cliente, ruta_db):
-    guaya = crear(cliente, "Guaya de freno", 5000, 8000, 3)
+    guaya = crear(cliente, "Guaya de freno", 8000, 3)
     id_venta = vender(cliente, guaya, 2).get_json()["id_venta"]
     id_detalle = detalle_de_la_venta(ruta_db, id_venta)
     resp = cliente.patch(
@@ -282,9 +266,9 @@ def test_hu08_corregir_a_mas_de_lo_que_hay_falla(cliente, ruta_db):
 
 
 def test_hu10_reporte_de_noviembre(cliente):
-    casco = crear(cliente, "Casco integral", 120000, 180000, 10)
-    guantes = crear(cliente, "Guantes de moto", 25000, 40000, 10)
-    espejo = crear(cliente, "Espejo retrovisor", 10000, 25000, 10)
+    casco = crear(cliente, "Casco integral", 180000, 10)
+    guantes = crear(cliente, "Guantes de moto", 40000, 10)
+    espejo = crear(cliente, "Espejo retrovisor", 25000, 10)
     vender(cliente, casco, 1, fecha="2026-10-31")
     vender(cliente, casco, 2, fecha="2026-11-01")
     vender(cliente, guantes, 5, fecha="2026-11-03")
