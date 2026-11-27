@@ -128,7 +128,7 @@ Documentos de cada semana, en `docs/`:
 
 | Semana | Documento |
 |---|---|
-| 1 | [Mapa conceptual](docs/01_mapa_conceptual_S1.pdf) |
+| 1 | [Laboratorio comparativo](docs/01_laboratorio_S1.pdf) y [mapa conceptual](docs/01_mapa_conceptual_S1.pdf) |
 | 2 | [Propuesta del proyecto](docs/02_propuesta_S2.pdf) y [banco de prompts](docs/02_banco_prompts_S2.pdf) |
 | 3 | [Documento de requisitos](docs/03_requisitos_S3.pdf) y [banco de prompts](docs/03_banco_prompts_S3.pdf) |
 | 4 | [Documento de diseño con el ADR-001](docs/04_diseno_y_ADR_S4.pdf) |
