@@ -7,9 +7,13 @@ Proyecto final del Seminario de IA Aplicada al Ciclo de Vida del Software (FET).
 Sistema para que R2K, una microempresa de accesorios para motos en Neiva, deje de llevar el inventario y
 las cuentas en un cuaderno. El objetivo es controlar qué mercancía entra y qué se vende.
 
-El primer incremento es la lógica de inventario de la **HU-02: registrar la venta de un producto y
-descontar el stock**. Es una función de dominio pura (`registrar_salida`), sin base de datos ni interfaz
-web todavía. El contrato completo está en la sección [Funcionalidad de la semana 5](#funcionalidad-de-la-semana-5).
+Por ahora está la lógica del inventario, sin base de datos ni interfaz web todavía:
+
+- `registrar_salida`: registra una venta y descuenta el stock (HU-06). Su contrato está en
+  [Funcionalidad de la semana 5](#funcionalidad-de-la-semana-5).
+- `registrar_entrada`: suma la mercancía que llega (HU-05).
+- `eliminar_producto`: elimina un producto solo si tiene stock 0 (HU-04).
+- `reporte_mensual`: lo vendido en un mes, por producto, y el total (HU-10).
 
 ## 2. Requisitos
 
@@ -91,6 +95,8 @@ pip-audit -r requirements.txt     # vulnerabilidades conocidas en las dependenci
 - `tests/test_inventario.py`: las 9 pruebas de la semana 5 (normales, de límite y de error).
 - `tests/test_abuso.py`: pruebas de abuso de la semana 6 (cantidades que no son enteros, productos con
   datos imposibles, stock intacto después de cada error).
+- `tests/test_reglas.py`: pruebas de la semana 7 (particiones, límites y tabla de decisión). Los casos
+  están explicados en [registro_pruebas.md](registro_pruebas.md).
 - `tests/test_demo.py`: comprueba la demostración por consola.
 
 `pyproject.toml` agrega `src` al path de pytest, por eso no hay que instalar el paquete.
@@ -100,8 +106,9 @@ pip-audit -r requirements.txt     # vulnerabilidades conocidas en las dependenci
 ```
 crud-r2k/
 ├── README.md                 # este archivo
-├── bitacora_ia.md            # registro del uso de IA (semanas 5 y 6)
+├── bitacora_ia.md            # registro del uso de IA (semanas 5, 6 y 7)
 ├── revision_seguridad.md     # informe de revisión de código y seguridad (semana 6)
+├── registro_pruebas.md       # tablas de casos y pruebas rotas a propósito (semana 7)
 ├── pyproject.toml            # configuración de pytest y de ruff
 ├── requirements.txt          # herramientas de desarrollo con versión fija
 ├── .env.example              # plantilla de variables de entorno (hoy no se usa ninguna)
@@ -109,10 +116,12 @@ crud-r2k/
 ├── src/r2k/
 │   ├── __init__.py
 │   ├── __main__.py           # demostración: python -m r2k
-│   └── inventario.py         # Producto, errores de dominio y registrar_salida
+│   └── inventario.py         # Producto, errores y las reglas del inventario
 └── tests/
+    ├── conftest.py           # datos de prueba inventados
     ├── test_inventario.py
     ├── test_abuso.py
+    ├── test_reglas.py
     └── test_demo.py
 ```
 
@@ -125,6 +134,8 @@ Este proyecto se desarrolla con ayuda de asistentes de IA y eso se declara:
 - **Semana 6:** un agente pasó el linter, hizo la segunda revisión del código, corrigió los hallazgos y
   redactó los borradores de los docstrings, de este README y del informe. Trabajó en la rama
   `agente/revision-s6`, con un commit por corrección.
+- **Semana 7:** propuso los casos de prueba y escribió una primera versión de `test_reglas.py`, que
+  revisé contra cada regla; lo que descarté o corregí está en [registro_pruebas.md](registro_pruebas.md).
 - **Reglas:** ninguna prueba se modifica para que pase, cada hallazgo de la IA se verifica ejecutando el
   código antes de aceptarlo, y no se suben claves ni datos reales del negocio.
 - Cada sugerencia, con la decisión y la verificación, está en [bitacora_ia.md](bitacora_ia.md). Los
@@ -142,7 +153,7 @@ Este proyecto se desarrolla con ayuda de asistentes de IA y eso se declara:
 
 ### Historia de usuario
 
-**HU-02: Registrar la venta de un producto y descontar el stock** (Prioridad: Must)
+**HU-06: Registrar la venta de un producto y descontar el stock** (Prioridad: Must)
 
 Como dueño de R2K, quiero registrar cada producto que vendo para que se descuente automáticamente
 del stock, para saber en todo momento cuánta mercancía me queda sin revisar el cuaderno.
