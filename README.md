@@ -173,6 +173,7 @@ Documentos de cada semana, en `docs/`:
 | 7 | [Plan y registro de pruebas](docs/07_plan_pruebas_S7.md) |
 | 8 | [Guía de despliegue](docs/08_guia_despliegue.md) |
 | 9 | [Plan de operación](docs/09_plan_operacion.md) |
+| 10 | [Informe final](docs/10_informe_final.pdf) |
 
 ## 7. Uso de IA
 
