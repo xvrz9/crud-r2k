@@ -9,7 +9,7 @@ Autor: Sergio Alejandro Vargas Trujillo
 
 ### Historia de usuario
 
-**HU-02: Registrar la venta de un producto y descontar el stock** (Prioridad: Must)
+**HU-06: Registrar la venta de un producto y descontar el stock** (Prioridad: Must)
 
 Como dueño de R2K, quiero registrar cada producto que vendo para que se descuente automáticamente
 del stock, para saber en todo momento cuánta mercancía me queda sin revisar el cuaderno.
