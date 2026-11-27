@@ -1,9 +1,3 @@
-"""Pruebas de abuso: entradas que intentan romper el contrato de inventario.
-
-Se agregaron en la revisión de seguridad de la semana 6. Las pruebas de la
-semana 5 (test_inventario.py) no se modificaron.
-"""
-
 import pytest
 
 from r2k.inventario import (

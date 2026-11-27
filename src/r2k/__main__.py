@@ -1,15 +1,9 @@
-"""Demostración por consola de registrar_salida. Se ejecuta con `python -m r2k`."""
+"""Demo por consola: python -m r2k"""
 
 from r2k.inventario import ErrorInventario, Producto, registrar_salida
 
 
-def ejecutar_demo() -> None:
-    """Muestra una venta normal y una venta rechazada con datos de ejemplo.
-
-    No recibe nada y no devuelve nada: imprime el resultado en la consola.
-    No lanza errores; el StockInsuficienteError de la segunda venta se captura
-    y se muestra como mensaje.
-    """
+def ejecutar_demo():
     productos = {
         1: Producto(1, "Casco integral", 120000, 180000, 10),
         2: Producto(2, "Guantes de moto", 25000, 40000, 5),
