@@ -27,7 +27,7 @@ y haría que el asistente me explicara cada cambio antes de aplicarlo.
 
 Asistente: Claude (Claude Code). Lo usé como segundo revisor del código y para aplicar las correcciones
 en la rama `agente/revision-s6`.
-Commit revisado: `104eada`. Informe completo: [revision_seguridad.md](revision_seguridad.md).
+Commit revisado: `104eada`. Informe completo: [docs/06_revision_codigo_S6.md](docs/06_revision_codigo_S6.md).
 
 | # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
 |---|---|---|---|---|---|---|
@@ -65,7 +65,7 @@ revisar el diff por commits pequeños fue más fácil que revisar un solo cambio
 
 # Semana 7: suite de pruebas con técnicas formales
 
-Asistente: Claude (Claude Code). Registro completo: [registro_pruebas.md](registro_pruebas.md).
+Asistente: Claude (Claude Code). Registro completo: [docs/07_plan_pruebas_S7.md](docs/07_plan_pruebas_S7.md).
 
 | # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
 |---|---|---|---|---|---|---|

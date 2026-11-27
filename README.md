@@ -96,7 +96,7 @@ pip-audit -r requirements.txt     # vulnerabilidades conocidas en las dependenci
 - `tests/test_abuso.py`: pruebas de abuso de la semana 6 (cantidades que no son enteros, productos con
   datos imposibles, stock intacto después de cada error).
 - `tests/test_reglas.py`: pruebas de la semana 7 (particiones, límites y tabla de decisión). Los casos
-  están explicados en [registro_pruebas.md](registro_pruebas.md).
+  están explicados en [docs/07_plan_pruebas_S7.md](docs/07_plan_pruebas_S7.md).
 - `tests/test_demo.py`: comprueba la demostración por consola.
 
 `pyproject.toml` agrega `src` al path de pytest, por eso no hay que instalar el paquete.
@@ -107,8 +107,7 @@ pip-audit -r requirements.txt     # vulnerabilidades conocidas en las dependenci
 crud-r2k/
 ├── README.md                 # este archivo
 ├── bitacora_ia.md            # registro del uso de IA (semanas 5, 6 y 7)
-├── revision_seguridad.md     # informe de revisión de código y seguridad (semana 6)
-├── registro_pruebas.md       # tablas de casos y pruebas rotas a propósito (semana 7)
+├── docs/                     # documentos de cada semana (ver la tabla de abajo)
 ├── pyproject.toml            # configuración de pytest y de ruff
 ├── requirements.txt          # herramientas de desarrollo con versión fija
 ├── .env.example              # plantilla de variables de entorno (hoy no se usa ninguna)
@@ -124,6 +123,20 @@ crud-r2k/
     ├── test_reglas.py
     └── test_demo.py
 ```
+
+Documentos de cada semana, en `docs/`:
+
+| Semana | Documento |
+|---|---|
+| 1 | [Mapa conceptual](docs/01_mapa_conceptual_S1.pdf) |
+| 2 | [Propuesta del proyecto](docs/02_propuesta_S2.pdf) y [banco de prompts](docs/02_banco_prompts_S2.pdf) |
+| 3 | [Documento de requisitos](docs/03_requisitos_S3.pdf) y [banco de prompts](docs/03_banco_prompts_S3.pdf) |
+| 4 | [Documento de diseño con el ADR-001](docs/04_diseno_y_ADR_S4.pdf) |
+| 5 | [Funcionalidad de la semana 5](#funcionalidad-de-la-semana-5) (en este README) |
+| 6 | [Revisión de código y seguridad](docs/06_revision_codigo_S6.md) |
+| 7 | [Plan y registro de pruebas](docs/07_plan_pruebas_S7.md) |
+| 8 | [Guía de despliegue](docs/08_guia_despliegue.md) |
+| 9 | [Plan de operación](docs/09_plan_operacion.md) |
 
 ## 7. Uso de IA
 
