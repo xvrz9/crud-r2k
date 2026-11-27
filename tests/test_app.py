@@ -192,7 +192,7 @@ def test_hu05_entrada_sube_el_stock_y_se_guarda(cliente):
     )
     assert resp.status_code == 201
     assert stock(cliente, guaya) == 12
-    pagina = cliente.get("/mercancia").get_data(as_text=True)
+    pagina = cliente.get(f"/editar/{guaya}").get_data(as_text=True)
     assert "$6.000" in pagina
 
 
@@ -320,6 +320,6 @@ def test_hu10_mes_invalido(cliente):
 # Pantallas
 
 
-@pytest.mark.parametrize("url", ["/", "/ventas", "/mercancia", "/reporte"])
+@pytest.mark.parametrize("url", ["/", "/ventas", "/reporte"])
 def test_las_pantallas_abren(cliente, url):
     assert cliente.get(url).status_code == 200

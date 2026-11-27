@@ -17,6 +17,7 @@
     <td>{{ p.precio_venta|pesos }}</td>
     <td>{{ p.stock_actual }}</td>
     <td class="acciones">
+      <a class="boton" href="/editar/{{ p.id_producto }}#agregar">Agregar unidades</a>
       <a class="boton" href="/editar/{{ p.id_producto }}">Editar</a>
       <form data-metodo="DELETE" data-url="/productos/{{ p.id_producto }}"
             data-confirmar="¿Eliminar {{ p.nombre }}?" data-ok="Producto eliminado">

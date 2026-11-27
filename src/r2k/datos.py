@@ -160,11 +160,11 @@ def registrar_entrada(con, id_producto, cantidad, costo_unitario, fecha=None):
     return nuevo_stock
 
 
-def listar_entradas(con, limite=20):
+def listar_entradas(con, id_producto, limite=10):
+    """Últimas entradas de mercancía de un producto."""
     return con.execute(
-        "SELECT e.*, p.nombre FROM entrada e JOIN producto p USING (id_producto) "
-        "ORDER BY e.id_entrada DESC LIMIT ?",
-        (limite,),
+        "SELECT * FROM entrada WHERE id_producto = ? ORDER BY id_entrada DESC LIMIT ?",
+        (id_producto, limite),
     ).fetchall()
 
 

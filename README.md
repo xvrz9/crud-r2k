@@ -20,7 +20,7 @@ Es una aplicación web local (Python, Flask y SQLite) que se abre en el navegado
 | HU-02 | Buscar un producto por nombre | Productos |
 | HU-03 | Editar el nombre y los precios (las ventas viejas conservan su precio) | Productos → Editar |
 | HU-04 | Eliminar un producto agotado (solo con stock 0) | Productos |
-| HU-05 | Registrar la mercancía que llega; el stock sube solo | Mercancía |
+| HU-05 | Registrar la mercancía que llega; el stock sube solo | Productos → Agregar unidades |
 | HU-06 | Registrar una venta; el stock baja solo | Ventas |
 | HU-08 | Corregir la cantidad de una venta mal anotada | Ventas |
 | HU-10 | Reporte del mes: cuánto se vendió de cada producto y el total | Reporte del mes |

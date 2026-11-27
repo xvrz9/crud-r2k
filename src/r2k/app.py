@@ -1,7 +1,7 @@
 """Aplicación web de R2K. Se abre con iniciar.bat o con: python -m r2k.app
 
 Tiene dos partes:
-- Las pantallas (/, /ventas, /mercancia, /reporte) que ve el dueño.
+- Las pantallas (/, /editar, /ventas, /reporte) que ve el dueño.
 - Las rutas en JSON del Diseño S4, sección 6, que usan esas pantallas.
 """
 
@@ -70,7 +70,11 @@ def crear_app(ruta_db=datos.RUTA_DB):
         ).fetchone()
         if producto is None:
             return render_template("base.html", error="Ese producto no existe"), 404
-        return render_template("editar.html", producto=producto)
+        return render_template(
+            "editar.html",
+            producto=producto,
+            entradas=datos.listar_entradas(con(), id_producto),
+        )
 
     @app.get("/ventas")
     def pantalla_ventas():
@@ -78,14 +82,6 @@ def crear_app(ruta_db=datos.RUTA_DB):
             "ventas.html",
             productos=datos.listar_productos(con()),
             ventas=datos.listar_ventas(con()),
-        )
-
-    @app.get("/mercancia")
-    def pantalla_mercancia():
-        return render_template(
-            "mercancia.html",
-            productos=datos.listar_productos(con()),
-            entradas=datos.listar_entradas(con()),
         )
 
     @app.get("/reporte")
