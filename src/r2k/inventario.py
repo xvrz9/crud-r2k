@@ -77,9 +77,7 @@ def _validar_cantidad(cantidad):
             f"La cantidad debe ser un número entero (recibido: {cantidad!r})"
         )
     if cantidad < CANTIDAD_MINIMA:
-        raise CantidadInvalidaError(
-            f"La cantidad debe ser al menos {CANTIDAD_MINIMA} (recibido: {cantidad})"
-        )
+        raise CantidadInvalidaError(f"La cantidad debe ser al menos {CANTIDAD_MINIMA}")
 
 
 def _validar_stock_suficiente(producto, cantidad):
@@ -90,12 +88,18 @@ def _validar_stock_suficiente(producto, cantidad):
         )
 
 
-def validar_datos_producto(nombre, precio_venta, stock_actual=0):
-    """Revisa los datos antes de guardar un producto (HU-01 y HU-03)."""
+def validar_datos_producto(
+    nombre, precio_venta, stock_actual=0,
+    mensaje_precio="El precio de venta debe ser mayor que 0",
+):
+    """Revisa los datos antes de guardar un producto (HU-01 y HU-03).
+
+    Los mensajes son los de los escenarios del documento de requisitos.
+    """
     if not isinstance(nombre, str) or not nombre.strip():
         raise ProductoInvalidoError("El nombre no puede estar vacío")
     if not _es_entero(precio_venta) or precio_venta <= 0:
-        raise ProductoInvalidoError("El precio de venta debe ser mayor que 0")
+        raise ProductoInvalidoError(mensaje_precio)
     if not _es_entero(stock_actual) or stock_actual < 0:
         raise ProductoInvalidoError("La cantidad no puede ser negativa")
 

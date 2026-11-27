@@ -124,7 +124,9 @@ def editar_producto(con, id_producto, nombre, precio_venta):
     productos = _cargar(con, id_producto)
     if not productos or not productos[id_producto].activo:
         raise inv.ProductoNoEncontradoError(f"No existe el producto {id_producto}")
-    inv.validar_datos_producto(nombre, precio_venta)
+    inv.validar_datos_producto(
+        nombre, precio_venta, mensaje_precio="El precio debe ser mayor que 0"
+    )
     with con:
         con.execute(
             "UPDATE producto SET nombre = ?, precio_venta = ? WHERE id_producto = ?",

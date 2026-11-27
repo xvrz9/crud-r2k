@@ -130,7 +130,7 @@ def test_hu03_precio_negativo_se_rechaza(cliente):
         json={"nombre": "Casco abierto", "precio_venta": -5000},
     )
     assert resp.status_code == 400
-    assert resp.get_json()["error"] == "El precio de venta debe ser mayor que 0"
+    assert resp.get_json()["error"] == "El precio debe ser mayor que 0"
     assert lista(cliente)[0]["precio_venta"] == 120000
 
 
@@ -186,7 +186,7 @@ def test_hu05_cantidad_cero_no_cambia_el_stock(cliente):
     guaya = crear(cliente, "Guaya de freno", 8000, 2)
     resp = cliente.post("/entradas", json={"id_producto": guaya, "cantidad": 0})
     assert resp.status_code == 400
-    assert "La cantidad debe ser al menos 1" in resp.get_json()["error"]
+    assert resp.get_json()["error"] == "La cantidad debe ser al menos 1"
     assert stock(cliente, guaya) == 2
 
 
@@ -246,7 +246,7 @@ def test_hu08_cantidad_cero_deja_la_venta_igual(cliente, ruta_db):
         f"/ventas/{id_venta}/detalles/{id_detalle}", json={"cantidad": 0}
     )
     assert resp.status_code == 400
-    assert "La cantidad debe ser al menos 1" in resp.get_json()["error"]
+    assert resp.get_json()["error"] == "La cantidad debe ser al menos 1"
     assert reporte(cliente, "2026-11").get_json()["total_vendido"] == 16000
     assert stock(cliente, guaya) == 3
 
