@@ -27,7 +27,7 @@ y haría que el asistente me explicara cada cambio antes de aplicarlo.
 
 Asistente: Claude (Claude Code). Lo usé como segundo revisor del código y para aplicar las correcciones
 en la rama `agente/revision-s6`.
-Commit revisado: `104eada`. Informe completo: [revision_seguridad.md](revision_seguridad.md).
+Commit revisado: `104eada`. Informe completo: [docs/06_revision_codigo_S6.md](docs/06_revision_codigo_S6.md).
 
 | # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
 |---|---|---|---|---|---|---|
@@ -65,7 +65,7 @@ revisar el diff por commits pequeños fue más fácil que revisar un solo cambio
 
 # Semana 7: suite de pruebas con técnicas formales
 
-Asistente: Claude (Claude Code). Registro completo: [registro_pruebas.md](registro_pruebas.md).
+Asistente: Claude (Claude Code). Registro completo: [docs/07_plan_pruebas_S7.md](docs/07_plan_pruebas_S7.md).
 
 | # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
 |---|---|---|---|---|---|---|
@@ -81,3 +81,45 @@ Que todas las pruebas pasen no quiere decir que estén bien. La primera versión
 y otras que pasaban con cualquier valor. Lo que más me sirvió fue romper el código a propósito, porque
 ahí se ve si una prueba sirve o no. También aprendí que hay que comparar las pruebas con los requisitos
 y no solo con el código: tenía pruebas muy completas de una ganancia que el cliente nunca pidió.
+
+---
+
+# Entrega final: app web, despliegue y operación (semanas 8 a 10)
+
+Asistente: Claude (Claude Code), como herramienta para escribir código más rápido. Yo definí qué
+tenía que hacer la app a partir de mis documentos de requisitos y diseño, revisé cada cambio, probé la
+app en mi portátil como la usaría mi primo y corregí lo que no servía. Rama: `entrega-final`.
+
+| # | Fecha | Sugerencia o prompt | Decisión | Razón | Cómo lo verifiqué | Commit |
+|---|---|---|---|---|---|---|
+| 18 | 2026-11-27 | Organicé los documentos de cada semana en `docs/` y armé la guía de despliegue y el plan de operación con apoyo del asistente. | Ajustada | El asistente había puesto unos PDF de la semana 1 que no eran los que entregué. Los cambié por mis dos archivos originales, sin modificarlos. | Abrí cada documento desde la tabla del README. | ef35864, efd51b0, 7290f7d |
+| 19 | 2026-11-27 | Escribí primero las pruebas de la app con los dos escenarios de cada historia de mi documento de requisitos y después la app con Flask y SQLite, usando el asistente para generar el código. | Aceptada | Así cada historia queda comprobada con los mismos datos y mensajes del documento. | Las pruebas fallaron antes de que existiera la app. Después: `83 passed`. La instalé con `instalar.bat` y la abrí con `iniciar.bat` en mi portátil. | dd7b858, a357b4d |
+| 20 | 2026-11-27 | La primera versión tenía una pestaña aparte, «Mercancía», solo para sumar unidades. | Ajustada | Al probarla vi que esa pantalla sobraba. La quité y puse «Agregar unidades» dentro de Productos. | Agregué unidades a un producto y revisé que el stock subiera. | 8d08656 |
+| 21 | 2026-11-27 | El código generado pedía precio de compra al crear un producto y costo al agregar unidades. | Rechazada | Detecté que esos datos solo servían para calcular la ganancia, que yo ya había sacado del alcance. Los quité de la app y dejé la explicación en el README, porque los documentos S3 y S4 ya estaban entregados. | `pytest`: 84 passed. Volví a crear productos y solo pedía nombre, precio de venta y cantidad. | 969c9b1 |
+| 22 | 2026-11-27 | El diseño generado era muy básico: colores fuertes, el «Volver» suelto abajo y un reporte que era solo una tabla con un número. | Ajustada | Cambié el diseño a colores sobrios, sin emojis, con botones con estilo, y al reporte le agregué gráficas y el detalle de cada venta. | Revisé cada pantalla en el navegador con datos de ejemplo. `85 passed`. | f4fdb47 |
+| 23 | 2026-11-27 | Antes de subir, revisé con el asistente que nada del código contradijera mis documentos de requisitos y diseño. | Aceptada | Aparecieron dos mensajes de error que no decían exactamente lo mismo que el documento (HU-03 y HU-05/HU-08). Los dejé iguales. | Las pruebas ahora comparan el mensaje palabra por palabra. `85 passed`. | 04f3a20 |
+| 24 | 2026-11-27 | Quité los comentarios del código y lo simplifiqué. La explicación de cada línea la dejé en un documento aparte para estudiarla. | Aceptada | Quería un código limpio que yo pudiera explicar en la sustentación. | `85 passed`, `ruff check .` sin avisos, y volví a probar vender, corregir y eliminar. | 921e0f2 |
+| 25 | 2026-11-27 | El pipeline de GitHub Actions salió en verde pero con dos advertencias de que una versión de Node.js iba a dejar de funcionar. | Aceptada | Vi las advertencias en la pestaña Actions y actualicé las dos acciones a la versión nueva. | La siguiente ejecución del pipeline. | ff9b5c3, c0c4cff |
+
+## Resumen de la entrega final
+
+| Decisión | Entradas |
+|---|---|
+| Aceptadas | 19, 23, 24, 25 |
+| Aceptadas con cambios (ajustadas) | 18, 20, 22 |
+| Rechazadas | 21 |
+
+## Errores que atraparon las pruebas (entrega final)
+
+- Antes de escribir la app, las pruebas de `tests/test_app.py` fallaban todas: así sé que de verdad prueban algo.
+- Al quitar el precio de compra, las pruebas mostraron todo lo que había que cambiar para que la app siguiera haciendo lo mismo.
+- Al cambiar los mensajes, las pruebas de HU-03, HU-05 y HU-08 confirmaron que dicen lo mismo que el documento.
+
+## Reflexión de la entrega final
+
+Lo que más me sirvió fue usar la app yo mismo antes de darla por terminada. Las pruebas pasaban, pero
+fue al usarla que encontré un precio de compra que no servía para nada y una pestaña de más. El
+asistente escribe rápido, pero no conoce a mi primo ni cómo trabaja; eso lo tuve que decidir yo.
+También aprendí que cuando se cambia el alcance hay que revisar todo lo que dependía de lo que se
+quitó, no solo la función principal. Y dejar la explicación de cada línea aparte me obligó a entender
+el código antes de sustentarlo.

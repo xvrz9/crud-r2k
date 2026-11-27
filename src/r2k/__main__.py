@@ -1,5 +1,3 @@
-"""Demo por consola: python -m r2k"""
-
 from r2k.inventario import ErrorInventario, Producto, registrar_salida
 
 

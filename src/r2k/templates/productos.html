@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <h1>Productos</h1>
+  <form method="get" action="/" class="fila">
+    <input name="buscar" value="{{ buscar }}" placeholder="Buscar por nombre">
+    <button>Buscar</button>
+    {% if buscar %}<a class="boton secundario" href="/">Ver todos</a>{% endif %}
+  </form>
+</div>
+
+<section class="tarjeta">
+  <h2>Nuevo producto</h2>
+  <form data-metodo="POST" data-url="/productos" data-ok="Producto guardado"
+        class="formulario en-linea">
+    <label>Nombre <input name="nombre" required></label>
+    <label>Precio de venta <input name="precio_venta" data-numero required></label>
+    <label>Cantidad <input name="stock_actual" data-numero value="0" required></label>
+    <button>Guardar producto</button>
+  </form>
+</section>
+
+<section class="tarjeta">
+  {% if productos %}
+  <table>
+    <tr><th>Producto</th><th class="num">Precio de venta</th><th class="num">Quedan</th><th></th></tr>
+    {% for p in productos %}
+    <tr>
+      <td>{{ p.nombre }}</td>
+      <td class="num">{{ p.precio_venta|pesos }}</td>
+      <td class="num">{{ p.stock_actual }}</td>
+      <td>
+        <div class="acciones">
+          <a class="boton" href="/editar/{{ p.id_producto }}#agregar">Agregar unidades</a>
+          <a class="boton secundario" href="/editar/{{ p.id_producto }}">Editar</a>
+          <form data-metodo="DELETE" data-url="/productos/{{ p.id_producto }}"
+                data-confirmar="¿Eliminar {{ p.nombre }}?" data-ok="Producto eliminado">
+            <button class="peligro">Eliminar</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% elif buscar %}
+  <p class="vacio">No se encontraron productos</p>
+  {% else %}
+  <p class="vacio">Todavía no hay productos. Registre el primero arriba.</p>
+  {% endif %}
+</section>
+{% endblock %}

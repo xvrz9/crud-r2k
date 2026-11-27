@@ -17,7 +17,6 @@ def productos():
     }
 
 
-# --- Casos normales ---
 def test_venta_normal_descuenta_el_stock(productos):
     assert registrar_salida(productos, 1, 3) == 7
 
@@ -31,7 +30,6 @@ def test_la_venta_queda_guardada_en_el_producto(productos):
     assert productos[1].stock_actual == 7
 
 
-# --- Casos límite ---
 def test_vender_todo_el_stock_lo_deja_en_cero(productos):
     assert registrar_salida(productos, 2, 5) == 0
 
@@ -41,7 +39,6 @@ def test_vender_una_unidad_mas_que_el_stock_falla(productos):
         registrar_salida(productos, 2, 6)
 
 
-# --- Casos de error ---
 def test_stock_insuficiente_no_cambia_el_stock(productos):
     with pytest.raises(StockInsuficienteError, match="Guantes de moto"):
         registrar_salida(productos, 2, 8)

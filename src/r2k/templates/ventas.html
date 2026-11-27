@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="titulo-pagina">
+  <h1>Ventas</h1>
+</div>
+
+<section class="tarjeta">
+  <h2>Registrar venta</h2>
+  <form data-metodo="POST" data-url="/ventas" data-tipo="venta" data-ok="Venta registrada"
+        class="formulario en-linea venta">
+    <label>Producto
+      <select name="id_producto" data-numero required>
+        <option value="">Elija un producto</option>
+        {% for p in productos %}
+        <option value="{{ p.id_producto }}">
+          {{ p.nombre }} ({{ p.precio_venta|pesos }}, quedan {{ p.stock_actual }})
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Cantidad <input name="cantidad" data-numero value="1" required></label>
+    <button>Registrar venta</button>
+  </form>
+</section>
+
+<section class="tarjeta">
+  <h2>Últimas ventas</h2>
+  {% if ventas %}
+  <p class="subtitulo">Si una venta quedó mal anotada, cambie la cantidad y oprima «Corregir».</p>
+  <table>
+    <tr><th>Venta</th><th>Fecha</th><th>Producto</th><th class="num">Precio</th><th>Cantidad</th><th class="num">Total</th></tr>
+    {% for v in ventas %}
+    <tr>
+      <td>#{{ v.id_venta }}</td>
+      <td class="fecha">{{ v.fecha }}</td>
+      <td>{{ v.nombre }}</td>
+      <td class="num">{{ v.precio_unitario|pesos }}</td>
+      <td>
+        <form data-metodo="PATCH" data-url="/ventas/{{ v.id_venta }}/detalles/{{ v.id_detalle }}"
+              data-ok="Venta corregida" class="fila">
+          <input name="cantidad" data-numero value="{{ v.cantidad }}" class="corta" required>
+          <button class="secundario">Corregir</button>
+        </form>
+      </td>
+      <td class="num">{{ v.total|pesos }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="vacio">Todavía no hay ventas.</p>
+  {% endif %}
+</section>
+{% endblock %}
